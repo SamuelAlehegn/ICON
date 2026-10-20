@@ -25,9 +25,9 @@ domain in production.
 
 ## Images
 
-- **backend/Dockerfile** — multi-stage: builds with `maven:3.9-eclipse-temurin-21`
+- **backend/Dockerfile** — multi-stage: builds with `maven:3.9-eclipse-temurin-17`
   (`dependency:go-offline` layer first for caching), then runs the jar on
-  `eclipse-temurin:21-jre` (`-XX:MaxRAMPercentage=75`). Runs as the non-root
+  `eclipse-temurin:17-jre` (`-XX:MaxRAMPercentage=75`). Runs as the non-root
   `appuser`. Includes an `actuator/health` healthcheck.
 - **frontend/Dockerfile** — `node:22-alpine` build (`npm ci` + production
   `ng build`), served by `nginx:1.27-alpine` with history fallback and API proxying.

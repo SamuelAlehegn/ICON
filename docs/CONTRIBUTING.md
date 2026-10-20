@@ -19,7 +19,7 @@ mvn test        # unit + Testcontainers integration tests (Docker required)
 mvn spring-boot:run
 ```
 
-- Java 21, Spring Boot 3.5, Lombok.
+- Java 17, Spring Boot 4.0, Lombok.
 - The schema is owned by Flyway. Never modify an already-applied migration; add a
   new `V{n}__*.sql`.
 - Keep public DTOs free of private data (contributor contact email, internal notes).
@@ -35,7 +35,7 @@ npm run build                   # production build
 npm test                        # unit tests
 ```
 
-- Angular 19: standalone components, signals, and `@if`/`@for` control flow.
+- Angular 19.2: standalone components, signals, and `@if`/`@for` control flow.
 - Follow the design tokens in `src/styles.scss`; keep pages accessible (semantic
   landmarks, meaningful `alt` text, keyboard-reachable controls).
 - Add unit tests for new services and non-trivial components.

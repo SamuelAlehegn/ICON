@@ -20,8 +20,8 @@ submissions) and for moderators.
 
 | Layer     | Technology                                                        |
 |-----------|-------------------------------------------------------------------|
-| Frontend  | Angular 19 (standalone components, signals, Angular Material, SCSS) |
-| Backend   | Spring Boot 3.5 (Java 21), Spring Security (JWT), Spring Data JPA |
+| Frontend  | Angular 19.2 (standalone components, signals, Angular Material, SCSS) |
+| Backend   | Spring Boot 4.0 (Java 17), Spring Security (JWT), Spring Data JPA |
 | Database  | PostgreSQL 16, schema managed by Flyway migrations                |
 | Storage   | Pluggable: local filesystem (default) or any S3-compatible store (MinIO) |
 | API docs  | springdoc-openapi (Swagger UI)                                    |
