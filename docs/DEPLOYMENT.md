@@ -25,18 +25,18 @@ domain in production.
 
 ## Images
 
-- **backend/Dockerfile** — multi-stage: builds with `maven:3.9-eclipse-temurin-17`
+- **EOTC_ICON-backend/Dockerfile** — multi-stage: builds with `maven:3.9-eclipse-temurin-17`
   (`dependency:go-offline` layer first for caching), then runs the jar on
   `eclipse-temurin:17-jre` (`-XX:MaxRAMPercentage=75`). Runs as the non-root
   `appuser`. Includes an `actuator/health` healthcheck.
-- **frontend/Dockerfile** — `node:22-alpine` build (`npm ci` + production
+- **EOTC_ICON-UI/Dockerfile** — `node:22-alpine` build (`npm ci` + production
   `ng build`), served by `nginx:1.27-alpine` with history fallback and API proxying.
 
 Build individually:
 
 ```bash
-docker build -t eotc-backend  ./backend
-docker build -t eotc-frontend ./frontend
+docker build -t eotc-backend  ./EOTC_ICON-backend
+docker build -t eotc-frontend ./EOTC_ICON-UI
 ```
 
 ## Configuration checklist
@@ -60,7 +60,7 @@ docker build -t eotc-frontend ./frontend
 ## Database migrations
 
 Flyway runs automatically at startup and validates the schema. Never edit an applied
-migration; add a new `V{n}__*.sql` under `backend/src/main/resources/db/migration`.
+migration; add a new `V{n}__*.sql` under `EOTC_ICON-backend/src/main/resources/db/migration`.
 
 ## Health & observability
 

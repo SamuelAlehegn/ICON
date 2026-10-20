@@ -14,7 +14,7 @@
 ## Backend
 
 ```bash
-cd backend
+cd EOTC_ICON-backend
 mvn test        # unit + Testcontainers integration tests (Docker required)
 mvn spring-boot:run
 ```
@@ -29,7 +29,7 @@ mvn spring-boot:run
 ## Frontend
 
 ```bash
-cd frontend
+cd EOTC_ICON-UI
 npm start                       # ng serve (proxies /api to :8080)
 npm run build                   # production build
 npm test                        # unit tests

@@ -71,7 +71,7 @@ Flyway migration set (`src/main/resources/db/h2`) and seeds clearly-marked sampl
 data by default. The data is discarded when the app stops.
 
 ```bash
-cd backend
+cd EOTC_ICON-backend
 SPRING_PROFILES_ACTIVE=local \
 JWT_SECRET=dev-secret-at-least-32-bytes-long-xxxx \
 mvn spring-boot:run
@@ -81,7 +81,7 @@ To run against a real PostgreSQL instead, omit the profile and provide connectio
 details (the default configuration is PostgreSQL, matching production):
 
 ```bash
-cd backend
+cd EOTC_ICON-backend
 DB_URL=jdbc:postgresql://localhost:5432/eotc_archive \
 DB_USERNAME=eotc DB_PASSWORD=eotc \
 JWT_SECRET=dev-secret-at-least-32-bytes-long-xxxx \
@@ -97,7 +97,7 @@ mvn test
 ### Frontend
 
 ```bash
-cd frontend
+cd EOTC_ICON-UI
 npm install
 npm start          # ng serve with proxy to http://localhost:8080
 ```
@@ -146,7 +146,7 @@ The following are reachable with **no authentication**, by design:
 
 Everything under `/api/v1/admin/**` requires the `MODERATOR` or `ADMIN` role. The
 authorization rules live in
-[`SecurityConfig.java`](backend/src/main/java/et/eotc/archive/config/SecurityConfig.java).
+[`SecurityConfig.java`](EOTC_ICON-backend/src/main/java/et/eotc/archive/config/SecurityConfig.java).
 
 ---
 
