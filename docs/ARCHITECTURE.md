@@ -7,7 +7,7 @@ images:
 
 ```
 ┌────────────────────┐        ┌──────────────────────────┐        ┌──────────────┐
-│  Angular 19 SPA    │  HTTP  │  Spring Boot 3.5 API     │  JPA   │  PostgreSQL  │
+│  Angular 19.2 SPA  │  HTTP  │  Spring Boot 4.0 API     │  JPA   │  PostgreSQL  │
 │  (standalone,      │ ─────▶ │  (stateless, JWT auth)   │ ─────▶ │  16          │
 │   signals,         │        │                          │        └──────────────┘
 │   Material, SCSS)  │        │  Flyway-managed schema   │
@@ -105,7 +105,7 @@ Only `PUBLISHED` records are returned by the public query services.
 
 ## Frontend
 
-Angular 19, standalone components, signals, and the new `@if`/`@for` control flow.
+Angular 19.2, standalone components, signals, and the new `@if`/`@for` control flow.
 Key directories:
 
 - `core/api` — one typed service per backend resource.
@@ -123,7 +123,7 @@ Noto Serif Ethiopic.
 ## Deployment
 
 See [`DEPLOYMENT.md`](DEPLOYMENT.md). In short: a multi-stage backend image
-(build on Temurin 21, run on JRE 21 as a non-root user) and an Nginx frontend image
+(build on Temurin 17, run on JRE 17 as a non-root user) and an Nginx frontend image
 that serves the SPA with history fallback and proxies `/api` and `/media` to the
 backend. `docker-compose.yml` wires PostgreSQL, MinIO, the API, and the web app
 together for a one-command local/production-like run.
