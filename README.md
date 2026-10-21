@@ -65,30 +65,28 @@ clearly-marked sample records with placeholder images.
 
 ### Backend
 
-The `local` Spring profile runs entirely against an **in-memory H2 database** in
-PostgreSQL-compatibility mode — no PostgreSQL or Docker required. It uses its own
-Flyway migration set (`src/main/resources/db/h2`) and seeds clearly-marked sample
-data by default. The data is discarded when the app stops.
+The `local` Spring profile is the **default** (used when no profile is active) and
+runs entirely against an **in-memory H2 database** in PostgreSQL-compatibility mode —
+no PostgreSQL or Docker required. The data is discarded when the app stops.
 
 ```bash
 cd EOTC_ICON-backend
-SPRING_PROFILES_ACTIVE=local \
-JWT_SECRET=dev-secret-at-least-32-bytes-long-xxxx \
 mvn spring-boot:run
 ```
 
-To run against a real PostgreSQL instead, omit the profile and provide connection
-details (the default configuration is PostgreSQL, matching production):
+To run against a real PostgreSQL instead, activate the `prod` profile and provide
+connection details — startup fails fast if `DB_URL`/`DB_USERNAME`/`DB_PASSWORD`
+are missing:
 
 ```bash
 cd EOTC_ICON-backend
+SPRING_PROFILES_ACTIVE=prod \
 DB_URL=jdbc:postgresql://localhost:5432/eotc_archive \
 DB_USERNAME=eotc DB_PASSWORD=eotc \
-JWT_SECRET=dev-secret-at-least-32-bytes-long-xxxx \
 mvn spring-boot:run
 ```
 
-Run tests (uses Testcontainers with PostgreSQL, so Docker must be running):
+Run tests (uses the `local` H2 profile, so Docker is not required):
 
 ```bash
 mvn test

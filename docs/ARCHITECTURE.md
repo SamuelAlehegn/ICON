@@ -57,9 +57,9 @@ so entity/schema drift fails fast at startup.
 
 | Profile | Database | Migrations | Use |
 |---------|----------|------------|-----|
-| *(default)* | PostgreSQL (`DB_*`) | `classpath:db/migration` | production, Docker Compose |
-| `local` | In-memory H2 (`MODE=PostgreSQL`) | `classpath:db/h2` | fast local development, no Docker |
-| `test`  | PostgreSQL via Testcontainers | `classpath:db/migration` | automated tests |
+| `local` *(default)* | In-memory H2 (`MODE=PostgreSQL`) | `classpath:db/h2` | local development and tests, no Docker |
+| `prod` | PostgreSQL (`DB_URL`/`DB_USERNAME`/`DB_PASSWORD`) | `classpath:db/migration` | production, Docker Compose |
+| `test`  | In-memory H2 (via `local`) | `classpath:db/h2` | automated tests |
 
 The `local` profile keeps Flyway ownership and `ddl-auto: validate`, but uses a
 hand-maintained H2 mirror of the PostgreSQL schema because H2 has no `pg_trgm`
