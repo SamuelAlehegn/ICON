@@ -1,0 +1,18 @@
+-- =============================================================================
+-- V1__baseline.sql — H2 schema baseline (local development)
+-- Migration set: classpath:db/h2 (profile `local`, the default profile)
+-- =============================================================================
+--
+-- Conventions (see README.md, "Database migrations"):
+--   * This set is a hand-maintained mirror of db/migration (PostgreSQL).
+--     Every schema change gets the same version number and shape here.
+--   * Keep SQL portable (ANSI). H2 runs in MODE=PostgreSQL, but PostgreSQL-only
+--     features (pg_trgm, GIN indexes, native types, functions) have no H2
+--     equivalent — such migrations are skipped here with a same-version
+--     placeholder file explaining why.
+--   * Never edit an applied migration — checksums are validated at startup.
+--     Add a new V{n}__*.sql instead.
+--
+-- No domain tables are created here: the data model has not been approved yet.
+-- This baseline intentionally contains no objects; future migrations extend it.
+-- =============================================================================

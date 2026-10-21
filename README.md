@@ -65,34 +65,71 @@ clearly-marked sample records with placeholder images.
 
 ### Backend
 
-The `local` Spring profile runs entirely against an **in-memory H2 database** in
-PostgreSQL-compatibility mode — no PostgreSQL or Docker required. It uses its own
-Flyway migration set (`src/main/resources/db/h2`) and seeds clearly-marked sample
-data by default. The data is discarded when the app stops.
+The `local` Spring profile is the **default** (used when no profile is active) and
+runs entirely against an **in-memory H2 database** in PostgreSQL-compatibility mode —
+no PostgreSQL or Docker required. The data is discarded when the app stops.
 
 ```bash
 cd EOTC_ICON-backend
-SPRING_PROFILES_ACTIVE=local \
-JWT_SECRET=dev-secret-at-least-32-bytes-long-xxxx \
 mvn spring-boot:run
 ```
 
-To run against a real PostgreSQL instead, omit the profile and provide connection
-details (the default configuration is PostgreSQL, matching production):
+To run against a real PostgreSQL instead, activate the `prod` profile and provide
+connection details — startup fails fast if `DB_URL`/`DB_USERNAME`/`DB_PASSWORD`
+are missing:
 
 ```bash
 cd EOTC_ICON-backend
+SPRING_PROFILES_ACTIVE=prod \
 DB_URL=jdbc:postgresql://localhost:5432/eotc_archive \
 DB_USERNAME=eotc DB_PASSWORD=eotc \
-JWT_SECRET=dev-secret-at-least-32-bytes-long-xxxx \
 mvn spring-boot:run
 ```
 
-Run tests (uses Testcontainers with PostgreSQL, so Docker must be running):
+Run tests (uses the `local` H2 profile, so Docker is not required):
 
 ```bash
 mvn test
 ```
+
+### Database migrations
+
+Flyway owns the schema in every profile; Hibernate runs with
+`spring.jpa.hibernate.ddl-auto=validate` and never creates or alters tables.
+Two migration sets keep local development and production aligned while still
+allowing the databases to differ where they genuinely must:
+
+| Profile | Migration set | Database |
+|---------|---------------|----------|
+| `local` *(default)* | `EOTC_ICON-backend/src/main/resources/db/h2` | in-memory H2 (`MODE=PostgreSQL`) |
+| `prod` | `EOTC_ICON-backend/src/main/resources/db/migration` | PostgreSQL |
+
+- Write portable (ANSI) SQL wherever possible and keep the two sets in step:
+  each change uses the same version (`V{n}__description.sql`) and the same
+  shape in both sets.
+- Isolate database-specific SQL (`pg_trgm`, `GIN` indexes, native PostgreSQL
+  types, functions, …) in `db/migration` only, and add a same-version
+  placeholder file to `db/h2` recording why the migration is skipped for H2.
+- Never edit an applied migration — checksums are validated at startup. Add a
+  new `V{n}__*.sql` instead.
+- No domain tables yet: `V1__baseline.sql` in both sets is intentionally free
+  of objects until the data model is approved.
+
+#### Clean local startup
+
+The local database is in-memory, so every start begins from an empty database
+and replays the `db/h2` set from scratch:
+
+```bash
+cd EOTC_ICON-backend
+mvn spring-boot:run          # profile `local` is the default
+```
+
+Flyway creates `flyway_schema_history` and applies `db/h2/V1__baseline.sql`,
+then the app is ready on http://localhost:8080 (H2 web console at
+`/h2-console`, JDBC URL `jdbc:h2:mem:eotcicon`, user `eotcicon`). To reset
+schema and data, restart the application — nothing is persisted. `mvn test`
+runs the same profile, so no external services are required.
 
 ### Frontend
 

@@ -61,6 +61,10 @@ docker build -t eotc-frontend ./EOTC_ICON-UI
 
 Flyway runs automatically at startup and validates the schema. Never edit an applied
 migration; add a new `V{n}__*.sql` under `EOTC_ICON-backend/src/main/resources/db/migration`.
+That set targets PostgreSQL and is the only one used in production — the `local`
+profile uses a separate hand-maintained H2 mirror under
+`EOTC_ICON-backend/src/main/resources/db/h2`. Keep SQL portable and keep the two
+sets version-aligned; PostgreSQL-only SQL lives solely in `db/migration`.
 
 ## Health & observability
 
