@@ -1,0 +1,19 @@
+-- =============================================================================
+-- V1__baseline.sql — PostgreSQL / production schema baseline
+-- Migration set: classpath:db/migration (profile `prod`, the default config)
+-- =============================================================================
+--
+-- Conventions (see README.md, "Database migrations"):
+--   * Flyway owns the schema; Hibernate runs with ddl-auto=validate and never
+--     creates or alters tables.
+--   * Keep SQL portable (ANSI) wherever possible so the H2 mirror (db/h2) can
+--     carry the same migration at the same version number.
+--   * PostgreSQL-specific SQL (pg_trgm, GIN indexes, native types, functions)
+--     belongs ONLY in this set. Always add a same-version placeholder file to
+--     db/h2 that documents why the migration does not apply to H2.
+--   * Never edit an applied migration — checksums are validated at startup.
+--     Add a new V{n}__*.sql instead.
+--
+-- No domain tables are created here: the data model has not been approved yet.
+-- This baseline intentionally contains no objects; future migrations extend it.
+-- =============================================================================

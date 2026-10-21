@@ -92,6 +92,45 @@ Run tests (uses the `local` H2 profile, so Docker is not required):
 mvn test
 ```
 
+### Database migrations
+
+Flyway owns the schema in every profile; Hibernate runs with
+`spring.jpa.hibernate.ddl-auto=validate` and never creates or alters tables.
+Two migration sets keep local development and production aligned while still
+allowing the databases to differ where they genuinely must:
+
+| Profile | Migration set | Database |
+|---------|---------------|----------|
+| `local` *(default)* | `EOTC_ICON-backend/src/main/resources/db/h2` | in-memory H2 (`MODE=PostgreSQL`) |
+| `prod` | `EOTC_ICON-backend/src/main/resources/db/migration` | PostgreSQL |
+
+- Write portable (ANSI) SQL wherever possible and keep the two sets in step:
+  each change uses the same version (`V{n}__description.sql`) and the same
+  shape in both sets.
+- Isolate database-specific SQL (`pg_trgm`, `GIN` indexes, native PostgreSQL
+  types, functions, …) in `db/migration` only, and add a same-version
+  placeholder file to `db/h2` recording why the migration is skipped for H2.
+- Never edit an applied migration — checksums are validated at startup. Add a
+  new `V{n}__*.sql` instead.
+- No domain tables yet: `V1__baseline.sql` in both sets is intentionally free
+  of objects until the data model is approved.
+
+#### Clean local startup
+
+The local database is in-memory, so every start begins from an empty database
+and replays the `db/h2` set from scratch:
+
+```bash
+cd EOTC_ICON-backend
+mvn spring-boot:run          # profile `local` is the default
+```
+
+Flyway creates `flyway_schema_history` and applies `db/h2/V1__baseline.sql`,
+then the app is ready on http://localhost:8080 (H2 web console at
+`/h2-console`, JDBC URL `jdbc:h2:mem:eotcicon`, user `eotcicon`). To reset
+schema and data, restart the application — nothing is persisted. `mvn test`
+runs the same profile, so no external services are required.
+
 ### Frontend
 
 ```bash
