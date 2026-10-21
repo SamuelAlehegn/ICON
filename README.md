@@ -33,8 +33,9 @@ Angular SPA ──HTTP──▶ Spring Boot REST API ──JPA──▶ PostgreS
                             └──▶ S3 / MinIO (object storage)
 ```
 
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for design details and
-[`docs/API.md`](docs/API.md) for the endpoint reference.
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for design details,
+[`docs/API.md`](docs/API.md) for the endpoint reference and
+[`docs/DATABASE.md`](docs/DATABASE.md) for the database schema and ERD.
 
 ---
 
@@ -112,8 +113,10 @@ allowing the databases to differ where they genuinely must:
   placeholder file to `db/h2` recording why the migration is skipped for H2.
 - Never edit an applied migration — checksums are validated at startup. Add a
   new `V{n}__*.sql` instead.
-- No domain tables yet: `V1__baseline.sql` in both sets is intentionally free
-  of objects until the data model is approved.
+- The core schema lives in `V2__create_core_schema.sql` (both sets, identical
+  body); `V3__enable_trigram_search.sql` adds `pg_trgm`/GIN indexes to the
+  PostgreSQL set only. See [`docs/DATABASE.md`](docs/DATABASE.md) for the ERD
+  and the design rules.
 
 #### Clean local startup
 
@@ -125,8 +128,10 @@ cd EOTC_ICON-backend
 mvn spring-boot:run          # profile `local` is the default
 ```
 
-Flyway creates `flyway_schema_history` and applies `db/h2/V1__baseline.sql`,
-then the app is ready on http://localhost:8080 (H2 web console at
+Flyway creates `flyway_schema_history` and applies the `db/h2` set
+(`V1__baseline.sql` → `V2__create_core_schema.sql` →
+`V3__enable_trigram_search.sql`), then the app is ready on
+http://localhost:8080 (H2 web console at
 `/h2-console`, JDBC URL `jdbc:h2:mem:eotcicon`, user `eotcicon`). To reset
 schema and data, restart the application — nothing is persisted. `mvn test`
 runs the same profile, so no external services are required.

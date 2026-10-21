@@ -33,14 +33,19 @@ Package root: `et.eotc.archive`.
 
 ### Data model
 
-Core tables (see `db/migration/V1__init.sql`):
+Core tables (see [`DATABASE.md`](DATABASE.md) and
+`db/migration/V2__create_core_schema.sql`):
 
 - `church` — physical location of artworks; supports dedup via `merged_into_id`.
+- `church_alias` — alternative names of a church.
 - `saint`   — depicted figures; unique `slug`; dedup via `merged_into_id`.
+- `saint_alias` — alternative names of a saint.
 - `icon`    — the artwork record; unique `reference_code`; publication status.
 - `icon_image` — one or more photographs per icon.
 - `icon_subject` — many-to-many between icons and saints, with the icon's own
-  caption and a `figure_certainty`.
+  caption and a `figure_certainty`. `saint_id` is nullable, so an icon can
+  depict an unidentified figure.
+- `image_rights` — licence and attribution statement of an image.
 - `contribution_review` — immutable moderation trail.
 - `audit_log` — administrative action log.
 - `users`, `refresh_token` — authentication.
@@ -96,12 +101,12 @@ be cleaned up in isolation. `MediaUrlResolver` builds public URLs from
 
 `POST /api/v1/contributions` → status `PENDING` → moderator decision:
 
-- `APPROVE` → icon and its (new or matched) church/saint become `PUBLISHED`, with
+- `APPROVE` → icon and its (new or matched) church/saint become `APPROVED`, with
   `published_at` set.
 - `REQUEST_CORRECTION` → contributor is asked to fix details; stays non-public.
 - `REJECT` → not published; images cleaned up.
 
-Only `PUBLISHED` records are returned by the public query services.
+Only `APPROVED` records are returned by the public query services.
 
 ## Frontend
 

@@ -82,7 +82,7 @@ Returns a `PageResponse<IconSummaryDto>`:
 
 `GET /api/v1/icons/{idOrSlug}` — full `IconDetailDto` (subjects, images, location
 and coordinates, artwork date, historical notes, related icons by saint, more from
-the same church). Only `PUBLISHED` icons are returned; anything else yields `404`.
+the same church). Only `APPROVED` icons are returned; anything else yields `404`.
 
 ## Churches (public)
 
@@ -138,7 +138,7 @@ Returns `201 Created`:
 ```
 
 `GET /api/v1/contributions/status/{referenceCode}` — no login needed; returns the
-status (`PENDING`, `NEEDS_CORRECTION`, `PUBLISHED`, `REJECTED`, `ARCHIVED`), the
+status (`PENDING`, `NEEDS_CORRECTION`, `APPROVED`, `REJECTED`, `ARCHIVED`), the
 church name, depicted figure, image count, and timestamps.
 
 Contributions are rate-limited per client IP
