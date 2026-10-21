@@ -1,0 +1,27 @@
+-- =============================================================================
+-- V3__enable_trigram_search.sql — pg_trgm extension and GIN trigram indexes
+-- Migration set: classpath:db/h2 (profile `local`, the default profile)
+-- =============================================================================
+--
+-- Conventions (see README.md, "Database migrations"):
+--   * This set is a hand-maintained mirror of db/migration (PostgreSQL).
+--     Every schema change gets the same version number and shape here.
+--   * Keep SQL portable (ANSI). H2 runs in MODE=PostgreSQL, but PostgreSQL-only
+--     features (pg_trgm, GIN indexes, native types, functions) have no H2
+--     equivalent — such migrations are skipped here with a same-version
+--     placeholder file explaining why.
+--   * Never edit an applied migration — checksums are validated at startup.
+--     Add a new V{n}__*.sql instead.
+--
+-- SKIPPED IN H2: pg_trgm / GIN trigram indexes.
+--
+-- H2 has no equivalent of the pg_trgm extension and no GIN index type, so
+-- this migration is a no-op in the H2 set. The equivalent PostgreSQL
+-- migration is db/migration/V3__enable_trigram_search.sql.
+--
+-- Fuzzy search in the local profile falls back to a case-insensitive LIKE
+-- scan over the same three columns (church.name, saint.canonical_name,
+-- icon.title). Those columns keep their B-tree indexes in both sets, so the
+-- local profile stays usable; only large datasets need the trigram indexes
+-- of the production set.
+-- =============================================================================
