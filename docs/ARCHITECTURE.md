@@ -86,6 +86,9 @@ Browsing the published archive is deliberately public. `SecurityConfig` permits 
 `/api/v1/admin/**` requires `MODERATOR`/`ADMIN`. The API is stateless; authentication
 uses short-lived JWT access tokens plus rotating refresh tokens.
 
+The full endpoint contract — every method, path and access level — is listed in
+[`API.md`](API.md).
+
 Private data (contributor contact email) is never serialized into public DTOs and is
 covered by an integration test.
 
