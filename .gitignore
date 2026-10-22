@@ -2,3 +2,8 @@ EOTC_Sacred_Icons_Archive.md
 EOTC_Sacred_Icons.md
 CREATE.md
 .DS_Store
+
+# Local environment and Docker artefacts
+.env
+docker-compose.override.yml
+data/

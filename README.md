@@ -34,8 +34,10 @@ Angular SPA ──HTTP──▶ Spring Boot REST API ──JPA──▶ PostgreS
 ```
 
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for design details,
-[`docs/API.md`](docs/API.md) for the endpoint reference and
-[`docs/DATABASE.md`](docs/DATABASE.md) for the database schema and ERD.
+[`docs/API.md`](docs/API.md) for the endpoint reference,
+[`docs/DATABASE.md`](docs/DATABASE.md) for the database schema and ERD, and
+[`docs/LOCAL_DEVELOPMENT.md`](docs/LOCAL_DEVELOPMENT.md) for the two ways to
+run the project locally.
 
 ---
 
@@ -44,7 +46,7 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for design details,
 Requires Docker Desktop.
 
 ```bash
-cp .env.example .env          # then edit secrets (JWT_SECRET, passwords)
+cp .env.example .env          # optional — every value has a working default
 docker compose up --build
 ```
 
@@ -52,36 +54,44 @@ docker compose up --build
 |------------------|------------------------------------------|
 | Web app          | http://localhost:8081                    |
 | REST API         | http://localhost:8080/api/v1             |
-| Swagger UI       | http://localhost:8080/swagger-ui.html    |
-| MinIO console    | http://localhost:9001                    |
 | PostgreSQL       | localhost:5432                           |
+| MinIO console    | http://localhost:9001                    |
 
-On first boot the schema is created by Flyway. If `ADMIN_EMAIL`/`ADMIN_PASSWORD`
-are set, an administrator account is created. Set `SEED_SAMPLE_DATA=true` to load
-clearly-marked sample records with placeholder images.
+Flyway creates the schema on the first backend start, against the PostgreSQL
+container.
 
 ---
 
 ## Local development
 
+There are two ways to run the project — pick whichever fits the task.
+
 ### Backend
 
-The `local` Spring profile is the **default** (used when no profile is active) and
-runs entirely against an **in-memory H2 database** in PostgreSQL-compatibility mode —
-no PostgreSQL or Docker required. The data is discarded when the app stops.
+The `local` Spring profile is the **default** (used when no profile is active)
+and runs entirely against **H2 in PostgreSQL-compatibility mode** — no
+PostgreSQL, no Docker required.
 
 ```bash
 cd EOTC_ICON-backend
 mvn spring-boot:run
 ```
 
-To run against a real PostgreSQL instead, activate the `prod` profile and provide
-connection details — startup fails fast if `DB_URL`/`DB_USERNAME`/`DB_PASSWORD`
-are missing:
+The H2 database is in-memory by default and is discarded when the app stops.
+Set `H2_URL` to keep the data between restarts:
+
+```bash
+H2_URL='jdbc:h2:file:./data/eotcicon;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH' \
+  mvn spring-boot:run
+```
+
+To run against a real PostgreSQL instead, activate the `docker` or `prod`
+profile and provide connection details — startup fails fast if
+`DB_URL`/`DB_USERNAME`/`DB_PASSWORD` are missing:
 
 ```bash
 cd EOTC_ICON-backend
-SPRING_PROFILES_ACTIVE=prod \
+SPRING_PROFILES_ACTIVE=docker \
 DB_URL=jdbc:postgresql://localhost:5432/eotc_archive \
 DB_USERNAME=eotc DB_PASSWORD=eotc \
 mvn spring-boot:run
@@ -102,8 +112,8 @@ allowing the databases to differ where they genuinely must:
 
 | Profile | Migration set | Database |
 |---------|---------------|----------|
-| `local` *(default)* | `EOTC_ICON-backend/src/main/resources/db/h2` | in-memory H2 (`MODE=PostgreSQL`) |
-| `prod` | `EOTC_ICON-backend/src/main/resources/db/migration` | PostgreSQL |
+| `local` *(default)* | `EOTC_ICON-backend/src/main/resources/db/h2` | H2 — in-memory, or file via `H2_URL` |
+| `docker`, `prod` | `EOTC_ICON-backend/src/main/resources/db/migration` | PostgreSQL |
 
 - Write portable (ANSI) SQL wherever possible and keep the two sets in step:
   each change uses the same version (`V{n}__description.sql`) and the same
@@ -157,22 +167,33 @@ npm test           # Karma + Jasmine unit tests (headless Chrome)
 ## Configuration
 
 All configuration is environment-variable driven; nothing sensitive is hardcoded.
-See [`.env.example`](.env.example) for the full list. Key variables:
+See [`.env.example`](.env.example) for the full list and
+[`docs/LOCAL_DEVELOPMENT.md`](docs/LOCAL_DEVELOPMENT.md#environment-variables)
+for the annotated reference.
+
+Read by the backend today:
 
 | Variable                    | Purpose                                              |
 |-----------------------------|------------------------------------------------------|
-| `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | PostgreSQL connection                     |
-| `JWT_SECRET`                | Signing key (≥ 32 bytes) — **required in production** |
-| `JWT_ACCESS_TTL`, `JWT_REFRESH_TTL` | Token lifetimes (ISO-8601 durations)          |
-| `CORS_ALLOWED_ORIGINS`      | Comma-separated browser origins                      |
+| `SPRING_PROFILES_ACTIVE`    | `local` (default, H2), `docker` or `prod` (PostgreSQL) |
+| `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | PostgreSQL connection — required for `docker`/`prod` |
+| `SERVER_PORT`               | HTTP port (default 8080)                            |
+| `H2_URL`                    | JDBC URL for the `local` profile (in-memory by default) |
 | `STORAGE_PROVIDER`          | `local` (default) or `s3`                            |
 | `STORAGE_LOCAL_ROOT`        | Media directory when `local`                         |
 | `S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY` | Object storage |
 | `STORAGE_PUBLIC_BASE_URL`   | Public URL prefix for media in API responses         |
-| `UPLOAD_MAX_BYTES`          | Max size per image (default 15 MB)                   |
-| `RATE_LIMIT_CONTRIBUTE_CAPACITY`, `RATE_LIMIT_CONTRIBUTE_REFILL_MINUTES` | Contribution throttling |
-| `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `MODERATOR_EMAIL`, `MODERATOR_PASSWORD` | Bootstrap accounts |
-| `SEED_SAMPLE_DATA`          | Load sample records on startup                       |
+
+Reserved for features that are not implemented yet (JWT auth, CORS, bootstrap
+accounts, upload limits, rate limiting): `JWT_SECRET`, `JWT_ACCESS_TTL`,
+`JWT_REFRESH_TTL`, `CORS_ALLOWED_ORIGINS`, `UPLOAD_MAX_BYTES`,
+`RATE_LIMIT_CONTRIBUTE_CAPACITY`, `RATE_LIMIT_CONTRIBUTE_REFILL_MINUTES`,
+`ADMIN_EMAIL`, `ADMIN_PASSWORD`, `MODERATOR_EMAIL`, `MODERATOR_PASSWORD`,
+`SEED_SAMPLE_DATA`.
+
+Read by Docker Compose: `FRONTEND_PORT`, `BACKEND_PORT`, `POSTGRES_PORT`,
+`MINIO_API_PORT`, `MINIO_CONSOLE_PORT`, `DB_NAME`, `MINIO_ROOT_USER`,
+`MINIO_ROOT_PASSWORD`, `MINIO_BUCKET`.
 
 ---
 

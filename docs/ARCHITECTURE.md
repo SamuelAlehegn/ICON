@@ -62,15 +62,21 @@ so entity/schema drift fails fast at startup.
 
 | Profile | Database | Migrations | Use |
 |---------|----------|------------|-----|
-| `local` *(default)* | In-memory H2 (`MODE=PostgreSQL`) | `classpath:db/h2` | local development and tests, no Docker |
-| `prod` | PostgreSQL (`DB_URL`/`DB_USERNAME`/`DB_PASSWORD`) | `classpath:db/migration` | production, Docker Compose |
-| `test`  | In-memory H2 (via `local`) | `classpath:db/h2` | automated tests |
+| `local` *(default)* | H2 — in-memory, or file via `H2_URL` | `classpath:db/h2` | local development and tests, no Docker |
+| `docker` | PostgreSQL (`DB_URL`/`DB_USERNAME`/`DB_PASSWORD`) | `classpath:db/migration` | Docker Compose stack |
+| `prod` | PostgreSQL (`DB_URL`/`DB_USERNAME`/`DB_PASSWORD`) | `classpath:db/migration` | production |
+| `test`  | H2 (via `local`) | `classpath:db/h2` | automated tests |
 
 The `local` profile keeps Flyway ownership and `ddl-auto: validate`, but uses a
 hand-maintained H2 mirror of the PostgreSQL schema because H2 has no `pg_trgm`
 extension or GIN indexes. It lives in `db/h2` (not under `db/migration`, which
 Flyway scans recursively). Keep the two migration sets in sync when the schema
 changes; production never uses H2.
+
+The `docker` and `prod` profiles are identical and both read their connection
+details from the environment, so neither can silently fall back to H2:
+`PostgresDatabaseConfig` fails startup with a readable message when
+`DB_URL`, `DB_USERNAME` or `DB_PASSWORD` is missing.
 
 ### Public vs. privileged access
 
@@ -130,7 +136,8 @@ Noto Serif Ethiopic.
 
 ## Deployment
 
-See [`DEPLOYMENT.md`](DEPLOYMENT.md). In short: a multi-stage backend image
+See [`DEPLOYMENT.md`](DEPLOYMENT.md) and [`LOCAL_DEVELOPMENT.md`](LOCAL_DEVELOPMENT.md).
+In short: a multi-stage backend image
 (build on Temurin 17, run on JRE 17 as a non-root user) and an Nginx frontend image
 that serves the SPA with history fallback and proxies `/api` and `/media` to the
 backend. `docker-compose.yml` wires PostgreSQL, MinIO, the API, and the web app

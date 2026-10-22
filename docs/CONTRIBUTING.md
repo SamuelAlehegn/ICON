@@ -15,7 +15,7 @@
 
 ```bash
 cd EOTC_ICON-backend
-mvn test        # unit + Testcontainers integration tests (Docker required)
+mvn test        # runs against the in-memory H2 profile — no Docker required
 mvn spring-boot:run
 ```
 
@@ -25,6 +25,10 @@ mvn spring-boot:run
 - Keep public DTOs free of private data (contributor contact email, internal notes).
   `PublicApiIntegrationTest` guards this.
 - New public endpoints must be reflected in `SecurityConfig` and covered by a test.
+- The PostgreSQL integration test is opt-in: set `EOTC_PG_IT_URL` (plus
+  `EOTC_PG_IT_USER` / `EOTC_PG_IT_PASSWORD`) to enable it.
+- See [`LOCAL_DEVELOPMENT.md`](LOCAL_DEVELOPMENT.md) for the no-Docker and the
+  Docker Compose workflows.
 
 ## Frontend
 
