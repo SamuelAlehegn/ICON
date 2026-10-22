@@ -19,6 +19,8 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
+import com.eotcicon.domain.enums.RecordStatus;
+
 /**
  * A church that icons are linked to. Duplicates are resolved with
  * {@code mergedInto} instead of being deleted, so the history survives.

@@ -1,4 +1,4 @@
-package com.eotcicon.domain;
+package com.eotcicon.domain.enums;
 
 /**
  * Lifecycle status of a registered account. The values must stay in sync with

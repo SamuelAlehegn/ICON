@@ -9,13 +9,22 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 
+import jakarta.persistence.EntityManager;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
+import com.eotcicon.domain.enums.AttributionPreference;
+import com.eotcicon.domain.enums.FigureCertainty;
+import com.eotcicon.domain.enums.LicenseType;
+import com.eotcicon.domain.enums.PublicationStatus;
+import com.eotcicon.domain.enums.RecordStatus;
+import com.eotcicon.domain.enums.ReviewAction;
+import com.eotcicon.domain.enums.UserRole;
+import com.eotcicon.domain.enums.UserStatus;
 
 /**
  * Contract between the JPA entities and the Flyway-managed schema.

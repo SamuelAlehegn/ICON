@@ -18,6 +18,8 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
+import com.eotcicon.domain.enums.RecordStatus;
+
 /**
  * A saint in the Ethiopian Orthodox Tewahedo Church tradition. Amharic and
  * Ge'ez names are first-class columns because they are functionally dependent

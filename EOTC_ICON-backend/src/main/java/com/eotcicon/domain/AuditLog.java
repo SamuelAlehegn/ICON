@@ -13,11 +13,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * An administrative action log entry. The actor is nullable so that the trail
- * survives the removal of an account, and {@code detail} holds a JSON
- * document as text (a native JSON type is PostgreSQL-only).
- */
+// An administrative action log entry.
 @Getter
 @Setter
 @Entity

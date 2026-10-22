@@ -1,4 +1,4 @@
-package com.eotcicon.domain;
+package com.eotcicon.domain.enums;
 
 /**
  * Role of a registered account. The values must stay in sync with the

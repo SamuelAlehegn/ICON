@@ -13,6 +13,9 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import com.eotcicon.domain.enums.PublicationStatus;
+import com.eotcicon.domain.enums.ReviewAction;
+
 /**
  * An immutable moderation trail of an icon contribution. Rows are only ever
  * inserted; {@code fromStatus} and {@code toStatus} record the state

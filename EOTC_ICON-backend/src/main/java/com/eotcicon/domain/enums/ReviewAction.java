@@ -1,4 +1,4 @@
-package com.eotcicon.domain;
+package com.eotcicon.domain.enums;
 
 /**
  * Action performed by a moderator on a contribution. The values must stay in

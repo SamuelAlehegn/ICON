@@ -1,4 +1,4 @@
-package com.eotcicon.domain;
+package com.eotcicon.domain.enums;
 
 /**
  * Moderation state of an icon contribution. The values must stay in sync with

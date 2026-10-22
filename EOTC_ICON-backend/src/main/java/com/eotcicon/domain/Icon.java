@@ -20,6 +20,10 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
+import com.eotcicon.domain.enums.AttributionPreference;
+import com.eotcicon.domain.enums.FigureCertainty;
+import com.eotcicon.domain.enums.PublicationStatus;
+
 /**
  * An artwork record and the root of the aggregate.
  */

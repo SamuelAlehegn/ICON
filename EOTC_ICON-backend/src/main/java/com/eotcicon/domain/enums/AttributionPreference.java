@@ -1,4 +1,4 @@
-package com.eotcicon.domain;
+package com.eotcicon.domain.enums;
 
 /**
  * Whether the contributor wants to be named publicly or kept anonymous. The

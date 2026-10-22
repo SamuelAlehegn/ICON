@@ -17,6 +17,8 @@ import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.Setter;
 
+import com.eotcicon.domain.enums.LicenseType;
+
 /**
  * The rights and attribution statement of a single image. The licence of the
  * artwork and the licence of the photograph are distinct records, so the

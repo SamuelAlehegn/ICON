@@ -324,7 +324,8 @@ The entities live in `EOTC_ICON-backend/src/main/java/com/eotcicon/domain/`:
 `BaseEntity` (`@MappedSuperclass` with the UUID key and the audit columns) plus
 one class per table — `User`, `RefreshToken`, `Church`, `ChurchAlias`,
 `Saint`, `SaintAlias`, `Icon`, `IconSubject`, `IconImage`, `ImageRights`,
-`ContributionReview`, `AuditLog` — and the enums `UserRole`, `UserStatus`,
+`ContributionReview`, `AuditLog`. The enums live in the
+`com.eotcicon.domain.enums` subpackage: `UserRole`, `UserStatus`,
 `RecordStatus`, `PublicationStatus`, `FigureCertainty`,
 `AttributionPreference`, `ReviewAction`, `LicenseType`.
 
