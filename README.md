@@ -180,15 +180,16 @@ See [`.env.example`](.env.example) for the full list. Key variables:
 
 The following are reachable with **no authentication**, by design:
 
-- `GET /api/v1/icons/**`, `/saints/**`, `/churches/**`, `/map/**`,
-  `/stats/**`, `/categories/**`, `/regions`
+- `GET /api/v1/icons/**`, `/saints/**`, `/churches/**`,
+  `/churches/map/markers`, `/stats`, `/categories`, `/regions`
 - `POST /api/v1/contributions` (anonymous contributions allowed)
 - `GET /api/v1/contributions/status/{referenceCode}` (track a submission by code)
 - `GET /media/**` (published images)
 
-Everything under `/api/v1/admin/**` requires the `MODERATOR` or `ADMIN` role. The
-authorization rules live in
-[`SecurityConfig.java`](EOTC_ICON-backend/src/main/java/et/eotc/archive/config/SecurityConfig.java).
+Everything under `/api/v1/admin/**` requires the `MODERATOR` or `ADMIN` role, and
+`/api/v1/account/**` requires any authenticated account. The full endpoint
+contract lives in [`docs/API.md`](docs/API.md); the authorization rules live in
+[`SecurityConfig.java`](EOTC_ICON-backend/src/main/java/com/eotcicon/config/SecurityConfig.java).
 
 ---
 
