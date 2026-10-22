@@ -318,6 +318,16 @@ collision handling, `updated_at` refresh, publication-status transitions, and
   `@Enumerated(EnumType.STRING)`; the Java constant names must match the
   CHECK constraint values exactly.
 
+## JPA entities
+
+The entities live in `EOTC_ICON-backend/src/main/java/com/eotcicon/domain/`:
+`BaseEntity` (`@MappedSuperclass` with the UUID key and the audit columns) plus
+one class per table — `User`, `RefreshToken`, `Church`, `ChurchAlias`,
+`Saint`, `SaintAlias`, `Icon`, `IconSubject`, `IconImage`, `ImageRights`,
+`ContributionReview`, `AuditLog` — and the enums `UserRole`, `UserStatus`,
+`RecordStatus`, `PublicationStatus`, `FigureCertainty`,
+`AttributionPreference`, `ReviewAction`, `LicenseType`.
+
 ## Tests
 
 * `EOTC_ICON-backend/src/test/java/com/eotcicon/schema/SchemaMigrationTest.java`
@@ -331,4 +341,18 @@ collision handling, `updated_at` refresh, publication-status transitions, and
   EOTC_PG_IT_URL=jdbc:postgresql://localhost:5432/eotcicon \
     EOTC_PG_IT_USER=postgres EOTC_PG_IT_PASSWORD=postgres \
     ./mvnw test -Dtest=SchemaMigrationPostgresIT
+  ```
+* `EOTC_ICON-backend/src/test/java/com/eotcicon/domain/EntityMappingTest.java`
+  runs the entity contract on the local H2 mirror (it is part of
+  `mvn verify`): it persists and reads back the whole icon aggregate, checks
+  that the audit columns are stamped and refreshed, and that every enum
+  constant is accepted by the matching CHECK constraint.
+* `EOTC_ICON-backend/src/test/java/com/eotcicon/domain/EntityMappingPostgresIT.java`
+  runs the same entity contract against PostgreSQL and is skipped unless
+  `EOTC_PG_IT_URL` is set:
+
+  ```bash
+  EOTC_PG_IT_URL=jdbc:postgresql://localhost:5432/eotcicon \
+    EOTC_PG_IT_USER=postgres EOTC_PG_IT_PASSWORD=postgres \
+    ./mvnw test -Dtest=EntityMappingPostgresIT
   ```
