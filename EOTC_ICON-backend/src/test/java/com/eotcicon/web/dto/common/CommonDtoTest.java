@@ -31,6 +31,7 @@ class CommonDtoTest {
 	void buildsSuccessAndErrorResponses() {
 		ActionResponse success = ActionResponse.success("Approved");
 		ActionResponse failure = ActionResponse.failure("Rejected");
+		HealthResponse health = HealthResponse.up("auth");
 		ApiError error = ApiError.validation(400, "Bad Request", "Validation failed", "/api/v1/icons",
 				List.of(new FieldErrorDto("title", "Title is required")));
 
@@ -38,6 +39,9 @@ class CommonDtoTest {
 		assertThat(success.message()).isEqualTo("Approved");
 		assertThat(success.timestamp()).isNotNull();
 		assertThat(failure.success()).isFalse();
+		assertThat(health.status()).isEqualTo("UP");
+		assertThat(health.service()).isEqualTo("auth");
+		assertThat(health.timestamp()).isNotNull();
 		assertThat(error.status()).isEqualTo(400);
 		assertThat(error.error()).isEqualTo("Bad Request");
 		assertThat(error.path()).isEqualTo("/api/v1/icons");
