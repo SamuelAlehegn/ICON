@@ -50,4 +50,7 @@ public interface IconRepository extends JpaRepository<Icon, UUID> {
 			@Param("category") String category,
 			@Param("saintId") UUID saintId,
 			Pageable pageable);
+
+
+	long countByPublicationStatus(PublicationStatus publicationStatus);
 }
