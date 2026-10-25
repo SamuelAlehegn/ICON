@@ -16,8 +16,13 @@ import com.eotcicon.web.dto.icon.IconDetailDto;
 import com.eotcicon.web.dto.icon.IconSummaryDto;
 import com.eotcicon.web.mapper.IconMapper;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/v1/icons")
+@Tag(name = "Icons", description = "Public icon endpoints")
 public class IconController {
 
 	private final IconService iconService;
@@ -29,22 +34,24 @@ public class IconController {
 	}
 
 	@GetMapping
+	@Operation(summary = "List approved icons", description = "Returns paginated approved icons with optional filters")
 	public PageResponse<IconSummaryDto> getIcons(
-			@RequestParam(value = "q", required = false) String q,
-			@RequestParam(value = "region", required = false) String region,
-			@RequestParam(value = "churchId", required = false) UUID churchId,
-			@RequestParam(value = "saintId", required = false) UUID saintId,
-			@RequestParam(value = "category", required = false) String category,
-			@RequestParam(value = "sort", required = false) String sort,
-			@RequestParam(value = "page", defaultValue = "0") int page,
-			@RequestParam(value = "size", defaultValue = "12") int size) {
+			@Parameter(description = "Search query") @RequestParam(value = "q", required = false) String q,
+			@Parameter(description = "Region filter") @RequestParam(value = "region", required = false) String region,
+			@Parameter(description = "Church ID filter") @RequestParam(value = "churchId", required = false) UUID churchId,
+			@Parameter(description = "Saint ID filter") @RequestParam(value = "saintId", required = false) UUID saintId,
+			@Parameter(description = "Category filter") @RequestParam(value = "category", required = false) String category,
+			@Parameter(description = "Sort order") @RequestParam(value = "sort", required = false) String sort,
+			@Parameter(description = "Page number") @RequestParam(value = "page", defaultValue = "0") int page,
+			@Parameter(description = "Page size") @RequestParam(value = "size", defaultValue = "12") int size) {
 		org.springframework.data.domain.Page<Icon> result = iconService.getIcons(q, region, churchId, saintId,
 				category, sort, page, size);
 		return IconMapper.toSummaryPage(result, mediaUrlResolver);
 	}
 
 	@GetMapping("/{idOrSlug}")
-	public IconDetailDto getIcon(@PathVariable("idOrSlug") String idOrSlug) {
+	@Operation(summary = "Get icon by ID or slug", description = "Returns approved icon details by ID or slug")
+	public IconDetailDto getIcon(@Parameter(description = "Icon ID or slug") @PathVariable("idOrSlug") String idOrSlug) {
 		Icon icon = iconService.getApprovedIcon(idOrSlug);
 		return IconMapper.toDetail(icon, mediaUrlResolver);
 	}
