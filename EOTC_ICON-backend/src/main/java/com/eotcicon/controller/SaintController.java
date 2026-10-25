@@ -11,8 +11,13 @@ import com.eotcicon.web.dto.common.PageResponse;
 import com.eotcicon.web.dto.saint.SaintDetailDto;
 import com.eotcicon.web.dto.saint.SaintSummaryDto;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/v1/saints")
+@Tag(name = "Saints", description = "Public saint endpoints")
 public class SaintController {
 
 	private final SaintService saintService;
@@ -22,15 +27,17 @@ public class SaintController {
 	}
 
 	@GetMapping
+	@Operation(summary = "List saints")
 	public PageResponse<SaintSummaryDto> getSaints(
-			@RequestParam(value = "page", defaultValue = "0") int page,
-			@RequestParam(value = "size", defaultValue = "12") int size) {
+			@Parameter(description = "Page number") @RequestParam(value = "page", defaultValue = "0") int page,
+			@Parameter(description = "Page size") @RequestParam(value = "size", defaultValue = "12") int size) {
 		org.springframework.data.domain.Page<SaintSummaryDto> result = saintService.getSaints(page, size);
 		return PageResponse.of(result);
 	}
 
 	@GetMapping("/{id}")
-	public SaintDetailDto getSaint(@PathVariable("id") String id) {
+	@Operation(summary = "Get saint by ID")
+	public SaintDetailDto getSaint(@Parameter(description = "Saint ID") @PathVariable("id") String id) {
 		return saintService.getSaint(id);
 	}
 }

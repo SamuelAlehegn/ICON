@@ -11,8 +11,13 @@ import com.eotcicon.web.dto.common.PageResponse;
 import com.eotcicon.web.dto.church.ChurchDetailDto;
 import com.eotcicon.web.dto.church.ChurchSummaryDto;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/v1/churches")
+@Tag(name = "Churches", description = "Public church endpoints")
 public class ChurchController {
 
 	private final ChurchService churchService;
@@ -22,15 +27,17 @@ public class ChurchController {
 	}
 
 	@GetMapping
+	@Operation(summary = "List churches")
 	public PageResponse<ChurchSummaryDto> getChurches(
-			@RequestParam(value = "page", defaultValue = "0") int page,
-			@RequestParam(value = "size", defaultValue = "12") int size) {
+			@Parameter(description = "Page number") @RequestParam(value = "page", defaultValue = "0") int page,
+			@Parameter(description = "Page size") @RequestParam(value = "size", defaultValue = "12") int size) {
 		org.springframework.data.domain.Page<ChurchSummaryDto> result = churchService.getChurches(page, size);
 		return PageResponse.of(result);
 	}
 
 	@GetMapping("/{id}")
-	public ChurchDetailDto getChurch(@PathVariable("id") String id) {
+	@Operation(summary = "Get church by ID")
+	public ChurchDetailDto getChurch(@Parameter(description = "Church ID") @PathVariable("id") String id) {
 		return churchService.getChurch(id);
 	}
 }
