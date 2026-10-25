@@ -7,3 +7,4 @@ CREATE.md
 .env
 docker-compose.override.yml
 data/
+EOTC_ICON-UI/package-lock.json
