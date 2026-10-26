@@ -1,11 +1,16 @@
 import { Component, DestroyRef, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { RouterLink } from '@angular/router';
+import { debounceTime } from 'rxjs';
 import { IconService } from '../../services/icon.service';
 import { IconSummary } from '../../models/icon.model';
 import { LazyImageDirective } from '../../directives/lazy-image.directive';
@@ -13,9 +18,20 @@ import { LazyImageDirective } from '../../directives/lazy-image.directive';
 @Component({
   selector: 'app-icons',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatProgressBarModule, RouterLink, LazyImageDirective],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatProgressBarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    RouterLink,
+    LazyImageDirective,
+  ],
   templateUrl: './icons.component.html',
-  styleUrl: './icons.component.scss'
+  styleUrl: './icons.component.scss',
 })
 export class IconsComponent implements OnInit {
   private readonly iconService = inject(IconService);
@@ -35,7 +51,36 @@ export class IconsComponent implements OnInit {
 
   readonly skeletonCards = Array.from({ length: 12 }, (_, index) => index);
 
+  filterForm = new FormGroup({
+    q: new FormControl(''),
+    region: new FormControl(''),
+    churchId: new FormControl(''),
+    saintId: new FormControl(''),
+    category: new FormControl(''),
+    sort: new FormControl('newest'),
+  });
+
+  regions = [
+    'Tigray',
+    'Afar',
+    'Amhara',
+    'Oromia',
+    'Gambela',
+    'Somali',
+    'Benishangul-Gumuz',
+    'Harari',
+    'Sidama',
+    'Central Ethiopia Regional State',
+    'South West Ethiopia Peoples',
+    'Southern Ethiopia Peoples',
+    'Addis Ababa',
+    'Dire Dawa',
+  ];
+
+  categories = ['saint', 'christ', 'mary', 'trinity', 'cross', 'miracle', 'feast'];
+
   private requestedPage = 0;
+  private requestId = 0;
   private focusResultsAfterLoad = false;
 
   constructor() {
@@ -45,6 +90,13 @@ export class IconsComponent implements OnInit {
       .subscribe((state) => {
         this.maxVisiblePages = state.matches ? 3 : 5;
       });
+
+    this.filterForm.valueChanges
+      .pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.focusResultsAfterLoad = false;
+        this.loadIcons(0);
+      });
   }
 
   ngOnInit(): void {
@@ -52,23 +104,57 @@ export class IconsComponent implements OnInit {
   }
 
   loadIcons(page = this.currentPage): void {
+    const requestId = ++this.requestId;
     this.requestedPage = page;
     this.loading = true;
     this.error = false;
-    this.iconService.getIcons({ page, size: this.pageSize }).subscribe({
-      next: (result) => {
-        this.icons = result.content || [];
-        this.currentPage = result.page ?? page;
-        this.totalElements = result.totalElements;
-        this.totalPages = result.totalPages;
-        this.loading = false;
-        this.focusResultsIfNeeded();
-      },
-      error: () => {
-        this.error = true;
-        this.loading = false;
-        this.focusResultsAfterLoad = false;
-      }
+
+    const values = this.filterForm.getRawValue();
+
+    this.iconService
+      .getIcons({
+        q: values.q?.trim() || undefined,
+        region: values.region || undefined,
+        churchId: values.churchId?.trim() || undefined,
+        saintId: values.saintId?.trim() || undefined,
+        category: values.category || undefined,
+        sort: values.sort || undefined,
+        page,
+        size: this.pageSize,
+      })
+      .subscribe({
+        next: (result) => {
+          if (requestId !== this.requestId) {
+            return;
+          }
+
+          this.icons = result.content || [];
+          this.currentPage = result.page ?? page;
+          this.totalElements = result.totalElements;
+          this.totalPages = result.totalPages;
+          this.loading = false;
+          this.focusResultsIfNeeded();
+        },
+        error: () => {
+          if (requestId !== this.requestId) {
+            return;
+          }
+
+          this.error = true;
+          this.loading = false;
+          this.focusResultsAfterLoad = false;
+        },
+      });
+  }
+
+  clearFilters(): void {
+    this.filterForm.reset({
+      q: '',
+      region: '',
+      churchId: '',
+      saintId: '',
+      category: '',
+      sort: 'newest',
     });
   }
 
@@ -124,6 +210,18 @@ export class IconsComponent implements OnInit {
 
     event.preventDefault();
     buttons[nextIndex].focus();
+  }
+
+  get hasActiveFilters(): boolean {
+    const values = this.filterForm.getRawValue();
+    return Boolean(
+      values.q?.trim() ||
+        values.region ||
+        values.churchId?.trim() ||
+        values.saintId?.trim() ||
+        values.category ||
+        (values.sort && values.sort !== 'newest')
+    );
   }
 
   get pageStart(): number {
