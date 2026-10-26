@@ -1,0 +1,235 @@
+:host {
+  display: block;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(250, 246, 238, 0.94);
+  border-bottom: 1px solid var(--color-line-gold);
+  box-shadow: 0 10px 30px rgba(75, 20, 28, 0.045);
+  backdrop-filter: saturate(140%) blur(14px);
+}
+
+.site-toolbar {
+  height: auto;
+  min-height: 84px;
+  padding: 0;
+  color: var(--color-ink);
+  background: transparent;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0.75rem clamp(1rem, 4vw, 2.5rem);
+}
+
+.brand {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.8rem;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  color: var(--color-gold-soft);
+  background:
+    radial-gradient(circle at 30% 22%, rgba(255, 255, 255, 0.18), transparent 42%),
+    linear-gradient(145deg, var(--color-burgundy-soft), var(--color-burgundy-deep));
+  border: 1px solid var(--color-gold);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 3px rgba(255, 255, 255, 0.06),
+    0 3px 10px rgba(75, 20, 28, 0.18);
+}
+
+.brand-mark svg {
+  width: 27px;
+  height: 27px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.05;
+}
+
+.brand-name {
+  color: var(--color-burgundy);
+  font-family: var(--font-display);
+  font-size: 1.38rem;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+}
+
+.brand-tagline {
+  margin-top: 0.22rem;
+  color: var(--color-gold-deep);
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin-left: auto;
+}
+
+.nav-link {
+  position: relative;
+  padding: 0.55rem 0.8rem;
+  color: var(--color-ink-soft);
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    color 160ms ease,
+    background-color 160ms ease;
+}
+
+.nav-link:hover {
+  color: var(--color-burgundy);
+  background: rgba(110, 31, 42, 0.055);
+}
+
+.nav-link.active {
+  color: var(--color-burgundy);
+}
+
+.nav-link.active::after {
+  position: absolute;
+  bottom: 0.18rem;
+  left: 50%;
+  width: 16px;
+  height: 1px;
+  background: var(--color-gold);
+  content: '';
+  transform: translateX(-50%);
+}
+
+.contribute-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.7rem;
+  padding: 0.56rem 1.1rem;
+  color: var(--color-burgundy);
+  border: 1px solid rgba(110, 31, 42, 0.5);
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.contribute-link:hover,
+.contribute-link.active {
+  color: var(--color-ivory);
+  background: var(--color-burgundy);
+  border-color: var(--color-burgundy);
+}
+
+.menu-toggle {
+  display: none;
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--color-burgundy);
+}
+
+.menu-toggle svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 1.6;
+}
+
+.mobile-nav-link {
+  color: var(--color-ink);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.mobile-nav-link.active {
+  color: var(--color-burgundy);
+}
+
+.mobile-contribute {
+  color: var(--color-burgundy);
+  font-weight: 700;
+}
+
+@media (max-width: 1020px) {
+  .desktop-nav {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 600px) {
+  .site-toolbar {
+    min-height: 68px;
+  }
+
+  .header-inner {
+    gap: 0.75rem;
+    padding-block: 0.55rem;
+  }
+
+  .brand-mark {
+    width: 40px;
+    height: 40px;
+  }
+
+  .brand-mark svg {
+    width: 23px;
+    height: 23px;
+  }
+
+  .brand-name {
+    font-size: 1.16rem;
+  }
+
+  .brand-tagline {
+    font-size: 0.54rem;
+    letter-spacing: 0.15em;
+  }
+}
+
+@media (max-width: 380px) {
+  .brand-tagline {
+    display: none;
+  }
+}
