@@ -1,21 +1,33 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+
+interface NavItem {
+  label: string;
+  path: string;
+}
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, MatToolbarModule, MatButtonModule],
-  template: `
-    <mat-toolbar color="primary">
-      <span>EOTC Icon Archive</span>
-      <span class="spacer"></span>
-      <a mat-button routerLink="/">Home</a>
-    </mat-toolbar>
-  `,
-  styles: [`
-    .spacer { flex: 1 1 auto; }
-  `]
+  imports: [
+    RouterLink,
+    RouterLinkActive,
+    MatToolbarModule,
+    MatButtonModule,
+    MatMenuModule
+  ],
+  templateUrl: './header.component.html',
+  styleUrl: './header.component.scss'
 })
-export class HeaderComponent {}
+export class HeaderComponent {
+  readonly navItems: NavItem[] = [
+    { label: 'Home', path: '/' },
+    { label: 'Icons', path: '/icons' },
+    { label: 'Churches', path: '/churches' },
+    { label: 'Saints', path: '/saints' },
+    { label: 'Map', path: '/map' }
+  ];
+}

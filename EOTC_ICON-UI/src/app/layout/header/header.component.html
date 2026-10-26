@@ -1,0 +1,66 @@
+<header class="site-header">
+  <mat-toolbar class="site-toolbar">
+    <div class="header-inner">
+      <a class="brand" routerLink="/" aria-label="EOTC Icon Archive — home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="16" stroke="currentColor" stroke-width="1" opacity="0.55" />
+            <path d="M20 6v28M6 20h28" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+            <path d="M13 11h14M13 29h14M11 13v14M29 13v14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.75" />
+            <circle cx="20" cy="20" r="3.2" fill="currentColor" />
+          </svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-name">EOTC Icon Archive</span>
+          <span class="brand-tagline">Sacred Icons of Ethiopia</span>
+        </span>
+      </a>
+
+      <nav class="desktop-nav" aria-label="Main navigation">
+        @for (item of navItems; track item.path) {
+          <a
+            class="nav-link"
+            [routerLink]="item.path"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+          >
+            {{ item.label }}
+          </a>
+        }
+
+        <a class="contribute-link" routerLink="/contribute" routerLinkActive="active">
+          Contribute
+        </a>
+      </nav>
+
+      <button
+        mat-icon-button
+        class="menu-toggle"
+        type="button"
+        [matMenuTriggerFor]="mobileMenu"
+        aria-label="Open navigation menu"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+      </button>
+
+      <mat-menu #mobileMenu="matMenu" class="mobile-nav-panel" xPosition="before">
+        @for (item of navItems; track item.path) {
+          <a
+            mat-menu-item
+            class="mobile-nav-link"
+            [routerLink]="item.path"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+          >
+            {{ item.label }}
+          </a>
+        }
+        <a mat-menu-item class="mobile-nav-link mobile-contribute" routerLink="/contribute" routerLinkActive="active">
+          Contribute
+        </a>
+      </mat-menu>
+    </div>
+  </mat-toolbar>
+</header>

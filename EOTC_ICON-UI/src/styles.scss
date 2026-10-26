@@ -1,16 +1,349 @@
 @use '@angular/material' as mat;
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+$burgundy-palette: (
+  0: #000000,
+  10: #2a070d,
+  20: #4a121b,
+  25: #571821,
+  30: #641e28,
+  35: #712530,
+  40: #7b2a35,
+  50: #963f4a,
+  60: #b25a64,
+  70: #cf7c85,
+  80: #eaa2a9,
+  90: #f8dadd,
+  95: #fdeced,
+  98: #fff8f8,
+  99: #fffbff,
+  100: #ffffff,
+  secondary: (
+    0: #000000,
+    10: #2c1512,
+    20: #442925,
+    25: #513430,
+    30: #5d3f3b,
+    35: #6a4b46,
+    40: #775651,
+    50: #926f69,
+    60: #ae8882,
+    70: #caa29c,
+    80: #e7bdb6,
+    90: #ffdad4,
+    95: #ffedea,
+    98: #fff8f6,
+    99: #fffbff,
+    100: #ffffff,
+  ),
+  neutral: (
+    0: #000000,
+    10: #211a18,
+    20: #372f2c,
+    25: #423936,
+    30: #4e4541,
+    35: #5a504c,
+    40: #665c58,
+    50: #807571,
+    60: #9a8e89,
+    70: #b5a8a3,
+    80: #d1c3be,
+    90: #ede0db,
+    95: #fcf1ec,
+    98: #fff8f5,
+    99: #fffbff,
+    100: #ffffff,
+    4: #140c0b,
+    6: #1a110f,
+    12: #261d1b,
+    17: #312725,
+    22: #3c3230,
+    24: #413633,
+    87: #e5d7d2,
+    92: #f3e5e0,
+    94: #f9ebe6,
+    96: #fef1ec,
+  ),
+  neutral-variant: (
+    0: #000000,
+    10: #251917,
+    20: #3b2d2b,
+    25: #473836,
+    30: #534341,
+    35: #5f4f4c,
+    40: #6c5a58,
+    50: #857370,
+    60: #a08c89,
+    70: #bca7a3,
+    80: #d8c2be,
+    90: #f5ddda,
+    95: #ffedea,
+    98: #fff8f6,
+    99: #fffbff,
+    100: #ffffff,
+  ),
+  error: (
+    0: #000000,
+    10: #410002,
+    20: #690005,
+    25: #7e0007,
+    30: #93000a,
+    35: #a80710,
+    40: #ba1a1a,
+    50: #de3730,
+    60: #ff5449,
+    70: #ff897d,
+    80: #ffb4ab,
+    90: #ffdad6,
+    95: #ffedea,
+    98: #fff8f7,
+    99: #fffbff,
+    100: #ffffff,
+  ),
+);
+
+$gold-palette: (
+  0: #000000,
+  10: #241a05,
+  20: #3b2f12,
+  25: #463a1b,
+  30: #524524,
+  35: #5e512e,
+  40: #6b5d39,
+  50: #847650,
+  60: #9f8f68,
+  70: #baa980,
+  80: #d6c59a,
+  90: #f3e1b4,
+  95: #fff0cc,
+  98: #fff9f0,
+  99: #fffbff,
+  100: #ffffff,
+  secondary: (
+    0: #000000,
+    10: #251a04,
+    20: #3c2f13,
+    25: #473a1c,
+    30: #534525,
+    35: #5f5130,
+    40: #6c5d3b,
+    50: #857452,
+    60: #a08e6b,
+    70: #bba885,
+    80: #d7c49f,
+    90: #f4dfbb,
+    95: #ffedcd,
+    98: #fff9f1,
+    99: #fffbff,
+    100: #ffffff,
+  ),
+  neutral: (
+    0: #000000,
+    10: #201b15,
+    20: #353028,
+    25: #403b32,
+    30: #4c463d,
+    35: #585149,
+    40: #645d54,
+    50: #7d766c,
+    60: #978f85,
+    70: #b2aa9f,
+    80: #cec5ba,
+    90: #eae1d6,
+    95: #f9f0e4,
+    98: #fff9f1,
+    99: #fffbff,
+    100: #ffffff,
+    4: #120e09,
+    6: #18140e,
+    12: #241f19,
+    17: #2f2923,
+    22: #3a342d,
+    24: #3f3831,
+    87: #e2d9ce,
+    92: #f0e7dc,
+    94: #f6ede2,
+    96: #fcf3e8,
+  ),
+  neutral-variant: (
+    0: #000000,
+    10: #241a05,
+    20: #3a2f16,
+    25: #453a20,
+    30: #51452a,
+    35: #5d5135,
+    40: #6a5d40,
+    50: #837555,
+    60: #9e8f6d,
+    70: #b9a986,
+    80: #d5c4a0,
+    90: #f2e0ba,
+    95: #ffefcd,
+    98: #fff9f1,
+    99: #fffbff,
+    100: #ffffff,
+  ),
+  error: (
+    0: #000000,
+    10: #410002,
+    20: #690005,
+    25: #7e0007,
+    30: #93000a,
+    35: #a80710,
+    40: #ba1a1a,
+    50: #de3730,
+    60: #ff5449,
+    70: #ff897d,
+    80: #ffb4ab,
+    90: #ffdad6,
+    95: #ffedea,
+    98: #fff8f7,
+    99: #fffbff,
+    100: #ffffff,
+  ),
+);
+
+:root {
+  --color-ivory: #faf6ee;
+  --color-ivory-deep: #f4ecdf;
+  --color-parchment: #efe4d1;
+  --color-burgundy: #6e1f2a;
+  --color-burgundy-deep: #4b141c;
+  --color-burgundy-soft: #8b3440;
+  --color-gold: #b08d4f;
+  --color-gold-soft: #d2b77c;
+  --color-gold-deep: #8a6a32;
+  --color-ink: #2c241f;
+  --color-ink-soft: #6b5c50;
+  --color-line: rgba(110, 31, 42, 0.14);
+  --color-line-gold: rgba(176, 141, 79, 0.36);
+  --font-display: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+  --font-body: 'Source Sans 3', 'Helvetica Neue', Arial, sans-serif;
+  --font-ethiopic: 'Noto Serif Ethiopic', 'Nyala', serif;
+  --shadow-soft: 0 18px 50px rgba(75, 20, 28, 0.08);
+  --content-width: 1200px;
+}
 
 :root {
   @include mat.theme((
     color: (
       theme-type: light,
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
+      primary: $burgundy-palette,
+      tertiary: $gold-palette,
     ),
-    typography: Roboto,
+    typography: (
+      brand-family: 'Cormorant Garamond',
+      plain-family: 'Source Sans 3',
+      bold-weight: 700,
+      medium-weight: 600,
+      regular-weight: 400,
+    ),
     density: 0,
   ));
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  color: var(--color-ink);
+  background-color: var(--color-ivory);
+  background-image:
+    radial-gradient(circle at 8% -10%, rgba(176, 141, 79, 0.12), transparent 38%),
+    radial-gradient(circle at 94% 108%, rgba(110, 31, 42, 0.07), transparent 42%);
+  background-attachment: fixed;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+app-root {
+  display: block;
+  min-height: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  color: var(--color-burgundy);
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+::selection {
+  color: var(--color-burgundy-deep);
+  background: rgba(210, 183, 124, 0.5);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-burgundy);
+  outline-offset: 3px;
+}
+
+.mobile-nav-panel {
+  --mat-menu-container-shape: 16px;
+  --mat-menu-container-color: var(--color-ivory);
+  --mat-menu-item-label-text-color: var(--color-ink);
+  --mat-menu-item-hover-state-layer-color: var(--color-burgundy);
+  --mat-menu-item-focus-state-layer-color: var(--color-burgundy);
+
+  border: 1px solid var(--color-line-gold);
+  box-shadow: var(--shadow-soft);
+}
+
+.mobile-nav-panel .mat-mdc-menu-item {
+  font-family: var(--font-body);
+  letter-spacing: 0.04em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
