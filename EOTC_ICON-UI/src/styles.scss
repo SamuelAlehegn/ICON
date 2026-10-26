@@ -216,11 +216,16 @@ $gold-palette: (
   --color-ink-soft: #6b5c50;
   --color-line: rgba(110, 31, 42, 0.14);
   --color-line-gold: rgba(176, 141, 79, 0.36);
+  --color-surface: #fffaf2;
+  --color-border: rgba(110, 31, 42, 0.14);
+  --color-text-secondary: #6b5c50;
+  --radius-lg: 18px;
   --font-display: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
   --font-body: 'Source Sans 3', 'Helvetica Neue', Arial, sans-serif;
   --font-ethiopic: 'Noto Serif Ethiopic', 'Nyala', serif;
   --shadow-soft: 0 18px 50px rgba(75, 20, 28, 0.08);
   --content-width: 1200px;
+  --max-width: var(--content-width);
 }
 
 :root {
