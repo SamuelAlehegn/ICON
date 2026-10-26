@@ -2,10 +2,7 @@
   <div class="hero-inner">
     <div class="hero-copy">
       <p class="eyebrow">A digital museum of Ethiopian sacred art</p>
-      <h1 id="hero-title">
-        A living archive of
-        <em>icons &amp; wall paintings</em>
-      </h1>
+      <h1 id="hero-title">Preserving Sacred Art. Honoring Our Heritage.</h1>
       <p class="hero-lead">
         Discover, document, and preserve the visual heritage of the Ethiopian
         Orthodox Tewahedo Church — one carefully attributed image at a time.
@@ -13,12 +10,47 @@
 
       <div class="hero-actions">
         <a mat-flat-button class="button button-primary" routerLink="/icons">
-          Explore the collection
+          Explore Icons
         </a>
         <a mat-stroked-button class="button button-secondary" routerLink="/contribute">
-          Contribute an icon
+          Contribute an Icon
         </a>
       </div>
+
+      <div class="hero-search" aria-label="Search the archive">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search saint / church / location</mat-label>
+          <input matInput placeholder="e.g. Saint Gebre Menfes Qiddus, Lalibela" />
+          <button mat-icon-button matSuffix aria-label="Search">
+            <mat-icon>search</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+
+      @if (stats && !loading) {
+        <div class="hero-stats" aria-label="Archive statistics">
+          <div class="stat">
+            <span class="stat-value">{{ stats.publishedIcons }}</span>
+            <span class="stat-label">Icons</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">{{ stats.churches }}</span>
+            <span class="stat-label">Churches</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">{{ stats.saints }}</span>
+            <span class="stat-label">Saints</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">{{ stats.regions }}</span>
+            <span class="stat-label">Regions</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value">{{ stats.contributors }}</span>
+            <span class="stat-label">Contributors</span>
+          </div>
+        </div>
+      }
 
       <ul class="hero-assurances" aria-label="Archive principles">
         <li>Free to browse</li>
@@ -73,9 +105,7 @@
           </svg>
         </div>
 
-        <p class="art-caption">
-          Preserving Tradition
-        </p>
+        <p class="art-caption">Preserving Tradition</p>
       </div>
     </div>
   </div>
@@ -125,6 +155,68 @@
           </span>
         </a>
       }
+    </div>
+  </div>
+</section>
+
+<section class="featured" aria-labelledby="featured-icons-title">
+  <div class="featured-inner">
+    <header class="section-heading">
+      <p class="eyebrow">Highlights</p>
+      <h2 id="featured-icons-title">Featured Icons</h2>
+      <p>Selected icons from the archive for closer viewing.</p>
+    </header>
+    <div class="placeholder-grid">
+      <article class="placeholder-card"><span>Featured icon placeholder</span></article>
+      <article class="placeholder-card"><span>Featured icon placeholder</span></article>
+      <article class="placeholder-card"><span>Featured icon placeholder</span></article>
+    </div>
+  </div>
+</section>
+
+<section class="recent" aria-labelledby="recent-icons-title">
+  <div class="recent-inner">
+    <header class="section-heading">
+      <p class="eyebrow">Latest</p>
+      <h2 id="recent-icons-title">Recent Icons</h2>
+      <p>Newly added to the archive.</p>
+    </header>
+    <div class="placeholder-grid">
+      <article class="placeholder-card"><span>Recent icon placeholder</span></article>
+      <article class="placeholder-card"><span>Recent icon placeholder</span></article>
+      <article class="placeholder-card"><span>Recent icon placeholder</span></article>
+      <article class="placeholder-card"><span>Recent icon placeholder</span></article>
+    </div>
+  </div>
+</section>
+
+<section class="featured-churches" aria-labelledby="featured-churches-title">
+  <div class="featured-churches-inner">
+    <header class="section-heading">
+      <p class="eyebrow">Communities</p>
+      <h2 id="featured-churches-title">Featured Churches</h2>
+      <p>Churches that safeguard these sacred works.</p>
+    </header>
+    <div class="placeholder-grid">
+      <article class="placeholder-card"><span>Featured church placeholder</span></article>
+      <article class="placeholder-card"><span>Featured church placeholder</span></article>
+      <article class="placeholder-card"><span>Featured church placeholder</span></article>
+    </div>
+  </div>
+</section>
+
+<section class="browse-categories" aria-labelledby="browse-title">
+  <div class="browse-inner">
+    <header class="section-heading">
+      <p class="eyebrow">Browse</p>
+      <h2 id="browse-title">Browse by category</h2>
+      <p>Explore by saints, churches, regions, or themes.</p>
+    </header>
+    <div class="category-grid">
+      <a class="category-card" routerLink="/saints">Saints</a>
+      <a class="category-card" routerLink="/churches">Churches</a>
+      <a class="category-card" routerLink="/icons">Icons</a>
+      <a class="category-card" routerLink="/map">Regions / Map</a>
     </div>
   </div>
 </section>
