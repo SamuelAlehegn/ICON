@@ -1,46 +1,84 @@
-<section class="icons-gallery">
+<section class="icons-gallery" aria-labelledby="gallery-title">
   <div class="icons-inner">
     <header class="gallery-header">
       <div>
         <p class="eyebrow">Collection</p>
-        <h1>Icon Gallery</h1>
+        <h1 id="gallery-title">Icon Gallery</h1>
         <p>Browse published icons from the archive.</p>
       </div>
     </header>
 
-    @if (loading) {
-      <div class="state-container">
-        <mat-spinner diameter="48"></mat-spinner>
-        <p>Loading icons...</p>
+    <h2 #resultsHeading class="visually-hidden" tabindex="-1">Icon gallery results</h2>
+
+    <p class="visually-hidden" role="status" aria-live="polite">
+      @if (loading && icons.length > 0) {
+        Loading more icons…
+      } @else if (!loading && !error && icons.length > 0) {
+        Showing icons {{ pageStart }} to {{ pageEnd }} of {{ totalElements }}.
+      }
+    </p>
+
+    @if (loading && icons.length === 0) {
+      <div class="skeleton-state" role="status" aria-live="polite">
+        <span class="visually-hidden">Loading icons…</span>
+        <div class="skeleton-grid" aria-hidden="true">
+          @for (placeholder of skeletonCards; track placeholder) {
+            <div class="skeleton-card">
+              <div class="skeleton-image"></div>
+              <div class="skeleton-body">
+                <span class="skeleton-line skeleton-line-lg"></span>
+                <span class="skeleton-line"></span>
+                <span class="skeleton-line skeleton-line-sm"></span>
+              </div>
+            </div>
+          }
+        </div>
       </div>
     } @else if (error) {
-      <div class="state-container">
-        <p>Something went wrong while loading icons.</p>
-        <button mat-stroked-button (click)="loadIcons()">Try again</button>
+      <div class="state-container state-error" role="alert">
+        <h2>Unable to load icons</h2>
+        <p>We couldn't reach the archive. Please check your connection and try again.</p>
+        <button mat-stroked-button type="button" (click)="retry()">Try again</button>
       </div>
     } @else if (icons.length === 0) {
-      <div class="state-container">
-        <p>No icons found in the archive yet.</p>
+      <div class="state-container state-empty" role="status">
+        <h2>No icons found</h2>
+        <p>The archive doesn't have any published icons yet. Please check back soon.</p>
+        <button mat-stroked-button type="button" (click)="retry()">Refresh</button>
       </div>
     } @else {
-      <div class="card-grid">
+      @if (loading) {
+        <mat-progress-bar mode="indeterminate" aria-label="Loading icons"></mat-progress-bar>
+      }
+
+      <div
+        id="icon-gallery-grid"
+        class="card-grid"
+        [class.is-loading]="loading"
+        [attr.aria-busy]="loading ? 'true' : null"
+      >
         @for (icon of icons; track icon.id) {
-          <mat-card class="icon-card" appearance="outlined">
+          <mat-card
+            class="icon-card"
+            appearance="outlined"
+            role="article"
+            [attr.aria-labelledby]="'icon-title-' + icon.id"
+          >
             <div class="card-image">
               @if (icon.thumbnailUrl || icon.imageUrl) {
                 <img
                   [appLazyImage]="icon.thumbnailUrl || icon.imageUrl"
-                  [alt]="icon.altText || getDisplayName(icon)"
+                  [alt]="getImageAlt(icon)"
                   loading="lazy"
                 />
               } @else {
                 <div class="image-placeholder">
-                  <span>No image</span>
+                  <span>No image available</span>
                 </div>
               }
             </div>
             <mat-card-content class="card-content">
-              <h2 class="card-title">{{ getDisplayName(icon) }}</h2>
+              <h2 class="card-title" [id]="'icon-title-' + icon.id">{{ getDisplayName(icon) }}</h2>
               <div class="card-meta">
                 <div class="meta-row">
                   <span class="meta-label">Church</span>
@@ -59,19 +97,25 @@
               </div>
             </mat-card-content>
             <mat-card-actions class="card-actions">
-              <a mat-button [routerLink]="['/icons', icon.id]">View details</a>
+              <a
+                mat-button
+                [routerLink]="['/icons', icon.id]"
+                [attr.aria-label]="'View details for ' + getDisplayName(icon)"
+              >
+                View details
+              </a>
             </mat-card-actions>
           </mat-card>
         }
       </div>
 
       @if (totalPages > 1) {
-        <nav class="pagination" aria-label="Icon gallery pagination">
+        <nav class="pagination" aria-label="Icon gallery pagination" aria-controls="icon-gallery-grid">
           <p class="pagination-summary">
             Showing {{ pageStart }}–{{ pageEnd }} of {{ totalElements }} icons
           </p>
 
-          <div class="pagination-controls">
+          <div class="pagination-controls" (keydown)="onPaginationKeydown($event)">
             <button
               mat-stroked-button
               type="button"
@@ -89,7 +133,7 @@
                 class="page-button"
                 [class.active]="page === currentPage"
                 [attr.aria-current]="page === currentPage ? 'page' : null"
-                [attr.aria-label]="'Go to page ' + (page + 1)"
+                [attr.aria-label]="'Go to page ' + (page + 1) + ' of ' + totalPages"
                 [disabled]="loading"
                 (click)="goToPage(page)"
               >
