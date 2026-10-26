@@ -1,0 +1,69 @@
+<section class="icons-gallery">
+  <div class="icons-inner">
+    <header class="gallery-header">
+      <div>
+        <p class="eyebrow">Collection</p>
+        <h1>Icon Gallery</h1>
+        <p>Browse published icons from the archive.</p>
+      </div>
+    </header>
+
+    @if (loading) {
+      <div class="state-container">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Loading icons...</p>
+      </div>
+    } @else if (error) {
+      <div class="state-container">
+        <p>Something went wrong while loading icons.</p>
+        <button mat-stroked-button (click)="loadIcons()">Try again</button>
+      </div>
+    } @else if (icons.length === 0) {
+      <div class="state-container">
+        <p>No icons found in the archive yet.</p>
+      </div>
+    } @else {
+      <div class="card-grid">
+        @for (icon of icons; track icon.id) {
+          <mat-card class="icon-card" appearance="outlined">
+            <div class="card-image">
+              @if (icon.thumbnailUrl || icon.imageUrl) {
+                <img
+                  [src]="icon.thumbnailUrl || icon.imageUrl"
+                  [alt]="icon.altText || getDisplayName(icon)"
+                  loading="lazy"
+                />
+              } @else {
+                <div class="image-placeholder">
+                  <span>No image</span>
+                </div>
+              }
+            </div>
+            <mat-card-content class="card-content">
+              <h2 class="card-title">{{ getDisplayName(icon) }}</h2>
+              <div class="card-meta">
+                <div class="meta-row">
+                  <span class="meta-label">Church</span>
+                  <span class="meta-value">{{ icon.churchName || '—' }}</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Location</span>
+                  <span class="meta-value">{{ getLocation(icon) }}</span>
+                </div>
+                @if (icon.contributorCredit) {
+                  <div class="meta-row">
+                    <span class="meta-label">Contributor</span>
+                    <span class="meta-value">{{ icon.contributorCredit }}</span>
+                  </div>
+                }
+              </div>
+            </mat-card-content>
+            <mat-card-actions class="card-actions">
+              <a mat-button [routerLink]="['/icons', icon.id]">View details</a>
+            </mat-card-actions>
+          </mat-card>
+        }
+      </div>
+    }
+  </div>
+</section>
