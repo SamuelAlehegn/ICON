@@ -8,6 +8,54 @@
       </div>
     </header>
 
+    <form class="filters" [formGroup]="filterForm">
+      <mat-form-field appearance="outline" class="filter-field filter-search">
+        <mat-label>Search saint / church / location</mat-label>
+        <input matInput formControlName="q" placeholder="e.g. Saint, church name, town" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Region</mat-label>
+        <mat-select formControlName="region">
+          <mat-option value="">All regions</mat-option>
+          @for (region of regions; track region) {
+            <mat-option [value]="region">{{ region }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Church</mat-label>
+        <input matInput formControlName="churchId" placeholder="Church ID (optional)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Saint</mat-label>
+        <input matInput formControlName="saintId" placeholder="Saint ID (optional)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="category">
+          <mat-option value="">All categories</mat-option>
+          @for (category of categories; track category) {
+            <mat-option [value]="category">{{ category | titlecase }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Sort by</mat-label>
+        <mat-select formControlName="sort">
+          <mat-option value="newest">Newest</mat-option>
+          <mat-option value="oldest">Oldest</mat-option>
+          <mat-option value="title">Alphabetical</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button type="button" class="clear-filters" (click)="clearFilters()">Clear filters</button>
+    </form>
+
     @if (loading) {
       <div class="state-container">
         <mat-spinner diameter="48"></mat-spinner>

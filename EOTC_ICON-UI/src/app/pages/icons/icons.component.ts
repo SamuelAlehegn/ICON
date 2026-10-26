@@ -1,8 +1,13 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { IconService } from '../../services/icon.service';
 import { IconSummary } from '../../models/icon.model';
@@ -10,9 +15,20 @@ import { IconSummary } from '../../models/icon.model';
 @Component({
   selector: 'app-icons',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatProgressSpinnerModule, RouterLink],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatIconModule,
+    RouterLink,
+  ],
   templateUrl: './icons.component.html',
-  styleUrl: './icons.component.scss'
+  styleUrl: './icons.component.scss',
 })
 export class IconsComponent implements OnInit {
   private readonly iconService = inject(IconService);
@@ -21,22 +37,84 @@ export class IconsComponent implements OnInit {
   loading = true;
   error = false;
 
+  filterForm = new FormGroup({
+    q: new FormControl(''),
+    region: new FormControl(''),
+    churchId: new FormControl(''),
+    saintId: new FormControl(''),
+    category: new FormControl(''),
+    sort: new FormControl('newest'),
+  });
+
+  regions = [
+    'Tigray',
+    'Afar',
+    'Amhara',
+    'Oromia',
+    'Gambela',
+    'Somali',
+    'Benishangul-Gumuz',
+    'Harari',
+    'Sidama',
+    'Central Ethiopia Regional State',
+    'South West Ethiopia Peoples',
+    'Southern Ethiopia Peoples',
+    'Addis Ababa',
+    'Dire Dawa',
+  ];
+  
+  categories = [
+    'saint',
+    'christ',
+    'mary',
+    'trinity',
+    'cross',
+    'miracle',
+    'feast',
+  ];
+
   ngOnInit(): void {
     this.loadIcons();
+    this.filterForm.valueChanges.subscribe(() => {
+      this.loadIcons();
+    });
   }
 
   loadIcons(): void {
     this.loading = true;
     this.error = false;
-    this.iconService.getIcons({ size: 24 }).subscribe({
-      next: (page) => {
-        this.icons = page.content || [];
-        this.loading = false;
-      },
-      error: () => {
-        this.error = true;
-        this.loading = false;
-      }
+    const values = this.filterForm.value;
+
+    this.iconService
+      .getIcons({
+        q: values.q || undefined,
+        region: values.region || undefined,
+        churchId: values.churchId || undefined,
+        saintId: values.saintId || undefined,
+        category: values.category || undefined,
+        sort: values.sort || undefined,
+        size: 24,
+      })
+      .subscribe({
+        next: (page) => {
+          this.icons = page.content || [];
+          this.loading = false;
+        },
+        error: () => {
+          this.error = true;
+          this.loading = false;
+        },
+      });
+  }
+
+  clearFilters(): void {
+    this.filterForm.reset({
+      q: '',
+      region: '',
+      churchId: '',
+      saintId: '',
+      category: '',
+      sort: 'newest',
     });
   }
 
