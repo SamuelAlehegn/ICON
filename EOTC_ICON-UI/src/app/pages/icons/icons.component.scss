@@ -61,6 +61,16 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card-image img.lazy-loaded {
+  opacity: 1;
+}
+
+.card-image img.lazy-error {
+  opacity: 0;
 }
 
 .image-placeholder {
@@ -111,4 +121,40 @@
 .card-actions {
   margin-top: auto;
   padding: 0.75rem 1.25rem 1.25rem;
+}
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.pagination-summary {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.pagination-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pagination-nav {
+  margin: 0 0.25rem;
+}
+
+.page-button {
+  min-width: 2.5rem;
+  color: var(--color-text-secondary);
+}
+
+.page-button.active {
+  color: var(--color-gold);
+  font-weight: 700;
 }

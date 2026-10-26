@@ -29,7 +29,7 @@
             <div class="card-image">
               @if (icon.thumbnailUrl || icon.imageUrl) {
                 <img
-                  [src]="icon.thumbnailUrl || icon.imageUrl"
+                  [appLazyImage]="icon.thumbnailUrl || icon.imageUrl"
                   [alt]="icon.altText || getDisplayName(icon)"
                   loading="lazy"
                 />
@@ -64,6 +64,51 @@
           </mat-card>
         }
       </div>
+
+      @if (totalPages > 1) {
+        <nav class="pagination" aria-label="Icon gallery pagination">
+          <p class="pagination-summary">
+            Showing {{ pageStart }}–{{ pageEnd }} of {{ totalElements }} icons
+          </p>
+
+          <div class="pagination-controls">
+            <button
+              mat-stroked-button
+              type="button"
+              class="pagination-nav"
+              [disabled]="!hasPrevious || loading"
+              (click)="goToPage(currentPage - 1)"
+            >
+              Previous
+            </button>
+
+            @for (page of visiblePages; track page) {
+              <button
+                mat-button
+                type="button"
+                class="page-button"
+                [class.active]="page === currentPage"
+                [attr.aria-current]="page === currentPage ? 'page' : null"
+                [attr.aria-label]="'Go to page ' + (page + 1)"
+                [disabled]="loading"
+                (click)="goToPage(page)"
+              >
+                {{ page + 1 }}
+              </button>
+            }
+
+            <button
+              mat-stroked-button
+              type="button"
+              class="pagination-nav"
+              [disabled]="!hasNext || loading"
+              (click)="goToPage(currentPage + 1)"
+            >
+              Next
+            </button>
+          </div>
+        </nav>
+      }
     }
   </div>
 </section>
