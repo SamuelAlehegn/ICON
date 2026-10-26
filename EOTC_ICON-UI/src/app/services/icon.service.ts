@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { IconSummary, PageResponse } from '../models/icon.model';
+import { IconDetail, IconSummary, PageResponse } from '../models/icon.model';
 
 @Injectable({
   providedIn: 'root'
@@ -32,5 +32,9 @@ export class IconService {
     if (params.size !== undefined) httpParams = httpParams.set('size', params.size.toString());
 
     return this.http.get<PageResponse<IconSummary>>(`${this.baseUrl}/api/v1/icons`, { params: httpParams });
+  }
+
+  getIcon(idOrSlug: string): Observable<IconDetail> {
+    return this.http.get<IconDetail>(`${this.baseUrl}/api/v1/icons/${encodeURIComponent(idOrSlug)}`);
   }
 }
