@@ -1,0 +1,219 @@
+<section class="icons-gallery" aria-labelledby="gallery-title">
+  <div class="icons-inner">
+    <header class="gallery-header">
+      <div>
+        <p class="eyebrow">Collection</p>
+        <h1 id="gallery-title">Icon Gallery</h1>
+        <p>Browse published icons from the archive.</p>
+      </div>
+    </header>
+
+    <form class="filters" [formGroup]="filterForm" role="search" aria-label="Filter icons">
+      <mat-form-field appearance="outline" class="filter-field filter-search">
+        <mat-label>Search saint, church, or location</mat-label>
+        <input
+          matInput
+          type="search"
+          formControlName="q"
+          placeholder="e.g. Saint, church name, town"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Region</mat-label>
+        <mat-select formControlName="region">
+          <mat-option value="">All regions</mat-option>
+          @for (region of regions; track region) {
+            <mat-option [value]="region">{{ region }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Church</mat-label>
+        <input matInput formControlName="churchId" placeholder="Church ID (optional)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Saint</mat-label>
+        <input matInput formControlName="saintId" placeholder="Saint ID (optional)" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="category">
+          <mat-option value="">All categories</mat-option>
+          @for (category of categories; track category) {
+            <mat-option [value]="category">{{ category | titlecase }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Sort by</mat-label>
+        <mat-select formControlName="sort">
+          <mat-option value="newest">Newest</mat-option>
+          <mat-option value="oldest">Oldest</mat-option>
+          <mat-option value="title">Alphabetical</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button type="button" class="clear-filters" (click)="clearFilters()">
+        Clear filters
+      </button>
+    </form>
+
+    <h2 #resultsHeading class="visually-hidden" tabindex="-1">Icon gallery results</h2>
+
+    <p class="visually-hidden" role="status" aria-live="polite">
+      @if (loading && icons.length > 0) {
+        Updating icons…
+      } @else if (!loading && !error && icons.length > 0) {
+        Showing icons {{ pageStart }} to {{ pageEnd }} of {{ totalElements }}.
+      }
+    </p>
+
+    @if (loading && icons.length === 0) {
+      <div class="skeleton-state" role="status" aria-live="polite">
+        <span class="visually-hidden">Loading icons…</span>
+        <div class="skeleton-grid" aria-hidden="true">
+          @for (placeholder of skeletonCards; track placeholder) {
+            <div class="skeleton-card">
+              <div class="skeleton-image"></div>
+              <div class="skeleton-body">
+                <span class="skeleton-line skeleton-line-lg"></span>
+                <span class="skeleton-line"></span>
+                <span class="skeleton-line skeleton-line-sm"></span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    } @else if (error) {
+      <div class="state-container state-error" role="alert">
+        <h2>Unable to load icons</h2>
+        <p>We couldn't reach the archive. Please check your connection and try again.</p>
+        <button mat-stroked-button type="button" (click)="retry()">Try again</button>
+      </div>
+    } @else if (icons.length === 0) {
+      <div class="state-container state-empty" role="status">
+        @if (hasActiveFilters) {
+          <h2>No icons match your filters</h2>
+          <p>Try a different search term, region, or category.</p>
+          <button mat-stroked-button type="button" (click)="clearFilters()">Clear filters</button>
+        } @else {
+          <h2>No icons found</h2>
+          <p>The archive doesn't have any published icons yet. Please check back soon.</p>
+          <button mat-stroked-button type="button" (click)="retry()">Refresh</button>
+        }
+      </div>
+    } @else {
+      @if (loading) {
+        <mat-progress-bar mode="indeterminate" aria-label="Loading icons"></mat-progress-bar>
+      }
+
+      <div
+        id="icon-gallery-grid"
+        class="card-grid"
+        [class.is-loading]="loading"
+        [attr.aria-busy]="loading ? 'true' : null"
+      >
+        @for (icon of icons; track icon.id) {
+          <mat-card
+            class="icon-card"
+            appearance="outlined"
+            role="article"
+            [attr.aria-labelledby]="'icon-title-' + icon.id"
+          >
+            <div class="card-image">
+              @if (icon.thumbnailUrl || icon.imageUrl) {
+                <img
+                  [appLazyImage]="icon.thumbnailUrl || icon.imageUrl"
+                  [alt]="getImageAlt(icon)"
+                  loading="lazy"
+                />
+              } @else {
+                <div class="image-placeholder">
+                  <span>No image available</span>
+                </div>
+              }
+            </div>
+            <mat-card-content class="card-content">
+              <h2 class="card-title" [id]="'icon-title-' + icon.id">{{ getDisplayName(icon) }}</h2>
+              <div class="card-meta">
+                <div class="meta-row">
+                  <span class="meta-label">Church</span>
+                  <span class="meta-value">{{ icon.churchName || '—' }}</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Location</span>
+                  <span class="meta-value">{{ getLocation(icon) }}</span>
+                </div>
+                @if (icon.contributorCredit) {
+                  <div class="meta-row">
+                    <span class="meta-label">Contributor</span>
+                    <span class="meta-value">{{ icon.contributorCredit }}</span>
+                  </div>
+                }
+              </div>
+            </mat-card-content>
+            <mat-card-actions class="card-actions">
+              <a
+                mat-button
+                [routerLink]="['/icons', icon.id]"
+                [attr.aria-label]="'View details for ' + getDisplayName(icon)"
+              >
+                View details
+              </a>
+            </mat-card-actions>
+          </mat-card>
+        }
+      </div>
+
+      @if (totalPages > 1) {
+        <nav class="pagination" aria-label="Icon gallery pagination" aria-controls="icon-gallery-grid">
+          <p class="pagination-summary">
+            Showing {{ pageStart }}–{{ pageEnd }} of {{ totalElements }} icons
+          </p>
+
+          <div class="pagination-controls" (keydown)="onPaginationKeydown($event)">
+            <button
+              mat-stroked-button
+              type="button"
+              class="pagination-nav"
+              [disabled]="!hasPrevious || loading"
+              (click)="goToPage(currentPage - 1)"
+            >
+              Previous
+            </button>
+
+            @for (page of visiblePages; track page) {
+              <button
+                mat-button
+                type="button"
+                class="page-button"
+                [class.active]="page === currentPage"
+                [attr.aria-current]="page === currentPage ? 'page' : null"
+                [attr.aria-label]="'Go to page ' + (page + 1) + ' of ' + totalPages"
+                [disabled]="loading"
+                (click)="goToPage(page)"
+              >
+                {{ page + 1 }}
+              </button>
+            }
+
+            <button
+              mat-stroked-button
+              type="button"
+              class="pagination-nav"
+              [disabled]="!hasNext || loading"
+              (click)="goToPage(currentPage + 1)"
+            >
+              Next
+            </button>
+          </div>
+        </nav>
+      }
+    }
+  </div>
+</section>

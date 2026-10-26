@@ -1,0 +1,381 @@
+:host {
+  display: block;
+}
+
+.icons-gallery {
+  padding: clamp(2.5rem, 6vw, 4rem) clamp(1rem, 4vw, 2.5rem) clamp(3rem, 7vw, 5rem);
+}
+
+.icons-inner {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 4vw, 2.5rem);
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.gallery-header > div {
+  max-width: 62ch;
+}
+
+.gallery-header h1 {
+  margin: 0.5rem 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.gallery-header p:not(.eyebrow) {
+  color: var(--color-text-secondary);
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem 1rem;
+  align-items: start;
+}
+
+.filter-field {
+  width: 100%;
+}
+
+.filter-search {
+  grid-column: 1 / -1;
+}
+
+.clear-filters {
+  align-self: center;
+  justify-self: flex-start;
+}
+
+.eyebrow {
+  color: var(--color-gold);
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 260px;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  color: var(--color-text-secondary);
+  text-align: center;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-line-gold);
+  border-radius: var(--radius-lg);
+}
+
+.state-container h2 {
+  color: var(--color-burgundy);
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+}
+
+.state-container p {
+  max-width: 46ch;
+}
+
+.state-error {
+  border-color: rgba(110, 31, 42, 0.4);
+}
+
+.state-empty {
+  border-color: var(--color-line);
+}
+
+.skeleton-state {
+  width: 100%;
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  width: 100%;
+}
+
+.skeleton-card {
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.skeleton-image {
+  aspect-ratio: 4 / 3;
+}
+
+.skeleton-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+}
+
+.skeleton-image,
+.skeleton-line {
+  background: linear-gradient(
+    100deg,
+    rgba(110, 31, 42, 0.06) 30%,
+    rgba(176, 141, 79, 0.18) 50%,
+    rgba(110, 31, 42, 0.06) 70%
+  );
+  background-size: 220% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-line {
+  width: 100%;
+  height: 0.8rem;
+  border-radius: 999px;
+}
+
+.skeleton-line-lg {
+  width: 70%;
+  height: 1.15rem;
+}
+
+.skeleton-line-sm {
+  width: 45%;
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  transition: opacity 0.2s ease;
+}
+
+.card-grid.is-loading {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.icon-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.icon-card:hover,
+.icon-card:focus-within {
+  border-color: var(--color-line-gold);
+  box-shadow: 0 22px 55px rgba(75, 20, 28, 0.12);
+  transform: translateY(-2px);
+}
+
+.card-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.card-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card-image img.lazy-loaded {
+  opacity: 1;
+}
+
+.card-image img.lazy-error {
+  opacity: 0;
+}
+
+.card-image:has(img.lazy-error)::after {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  content: 'Image unavailable';
+}
+
+.image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--color-text-secondary);
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem 1.25rem 0;
+}
+
+.card-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+
+.card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.meta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.meta-label {
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.meta-value {
+  font-size: 0.95rem;
+}
+
+.card-actions {
+  margin-top: auto;
+  padding: 0.75rem 1.25rem 1.25rem;
+}
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem clamp(1rem, 3vw, 2rem);
+  margin-top: 0.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-line);
+}
+
+.pagination-summary {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.pagination-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pagination-nav {
+  margin: 0 0.25rem;
+}
+
+.page-button {
+  min-width: 2.5rem;
+  color: var(--color-text-secondary);
+}
+
+.page-button.active {
+  color: var(--color-burgundy);
+  font-weight: 700;
+  background: rgba(176, 141, 79, 0.18);
+}
+
+@media (max-width: 640px) {
+  .icons-gallery {
+    padding: 2.25rem 1rem 3rem;
+  }
+
+  .icons-inner {
+    gap: 1.5rem;
+  }
+
+  .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-search {
+    grid-column: auto;
+  }
+
+  .clear-filters {
+    justify-self: stretch;
+  }
+
+  .card-grid,
+  .skeleton-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-image {
+    aspect-ratio: 16 / 10;
+  }
+
+  .card-actions a {
+    width: 100%;
+  }
+
+  .pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pagination-summary {
+    text-align: center;
+  }
+
+  .pagination-controls {
+    justify-content: center;
+  }
+
+  .pagination-nav {
+    flex: 1 1 auto;
+  }
+
+  .page-button {
+    min-width: 2.25rem;
+  }
+
+  .state-container {
+    min-height: 220px;
+  }
+}
