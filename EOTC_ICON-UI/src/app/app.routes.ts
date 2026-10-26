@@ -6,7 +6,9 @@ export const routes: Routes = [
     path: '',
     component: MainLayoutComponent,
     children: [
-      { path: '', loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent) }
+      { path: '', loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent) },
+      { path: 'learn-iconography', loadComponent: () => import('./pages/learn-iconography/learn-iconography.component').then(m => m.LearnIconographyComponent) },
+      { path: 'resources', loadComponent: () => import('./pages/resources/resources.component').then(m => m.ResourcesComponent) }
     ]
   }
 ];
