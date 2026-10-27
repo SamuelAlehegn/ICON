@@ -23,9 +23,30 @@ defaults:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      pages_enabled: ${{ steps.check_pages.outputs.enabled }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Check GitHub Pages status
+        id: check_pages
+        if: github.event_name != 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const repo = await github.rest.repos.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            const enabled = repo.data.has_pages;
+            core.setOutput('enabled', String(enabled));
+
+            if (!enabled) {
+              core.warning('GitHub Pages is not enabled for this repository. Enable it in Settings → Pages, then rerun the workflow.');
+            }
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -44,13 +65,13 @@ jobs:
         run: npm run build -- --base-href /${{ github.event.repository.name }}/
 
       - name: Upload Pages artifact
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && needs.build.outputs.pages_enabled == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
           path: EOTC_ICON-UI/dist/eotc-icon-ui
 
   deploy:
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && needs.build.outputs.pages_enabled == 'true'
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -63,6 +84,9 @@ jobs:
       group: github-pages
       cancel-in-progress: false
     steps:
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
