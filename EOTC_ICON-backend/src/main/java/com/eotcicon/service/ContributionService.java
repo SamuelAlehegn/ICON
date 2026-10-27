@@ -46,11 +46,13 @@ public class ContributionService {
 	private final StorageService storageService;
 	private final ImageValidationService imageValidationService;
 	private final ThumbnailService thumbnailService;
+	private final RateLimitService rateLimitService;
 
 	public ContributionService(IconRepository iconRepository, IconImageRepository iconImageRepository,
 			ContributionReviewRepository contributionReviewRepository, ChurchRepository churchRepository,
 			UserRepository userRepository, StorageService storageService,
-			ImageValidationService imageValidationService, ThumbnailService thumbnailService) {
+			ImageValidationService imageValidationService, ThumbnailService thumbnailService,
+			RateLimitService rateLimitService) {
 		this.iconRepository = iconRepository;
 		this.iconImageRepository = iconImageRepository;
 		this.contributionReviewRepository = contributionReviewRepository;
@@ -59,6 +61,7 @@ public class ContributionService {
 		this.storageService = storageService;
 		this.imageValidationService = imageValidationService;
 		this.thumbnailService = thumbnailService;
+		this.rateLimitService = rateLimitService;
 	}
 
 	public ContributionCreatedDto submitContribution(ContributionRequest request) {
@@ -70,6 +73,14 @@ public class ContributionService {
 		}
 		if (!StringUtils.hasText(request.churchName())) {
 			throw new IllegalArgumentException("Church name is required");
+		}
+
+		String rateLimitKey = request.contactEmail();
+		if (!StringUtils.hasText(rateLimitKey)) {
+			rateLimitKey = request.contributorDisplayName() != null ? request.contributorDisplayName() : "anonymous";
+		}
+		if (!rateLimitService.allowRequest(rateLimitKey)) {
+			throw new IllegalArgumentException("Too many requests. Please try again later.");
 		}
 
 		for (MultipartFile image : request.images()) {
