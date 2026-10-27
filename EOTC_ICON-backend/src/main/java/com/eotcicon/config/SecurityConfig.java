@@ -26,7 +26,7 @@ public class SecurityConfig {
 		http
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.csrf(csrf -> csrf
-				.ignoringRequestMatchers("/h2-console/**")
+				.ignoringRequestMatchers("/h2-console/**", "/api/v1/contributions/**")
 			)
 			.headers(headers -> headers
 				.frameOptions(frame -> frame.sameOrigin())
@@ -44,7 +44,9 @@ public class SecurityConfig {
 					"/api/v1/icons/**",
 					"/api/v1/churches/**",
 					"/api/v1/saints/**",
-					"/api/v1/statistics/**"
+					"/api/v1/statistics/**",
+					"/api/v1/contributions/**",
+					"/media/**"
 				).permitAll()
 				.anyRequest().authenticated()
 			);
