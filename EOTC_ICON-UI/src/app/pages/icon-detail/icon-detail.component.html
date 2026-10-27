@@ -1,0 +1,200 @@
+<section class="icon-detail" aria-labelledby="icon-title">
+  <div class="detail-inner">
+    @if (loading) {
+      <div class="loading-state" role="status" aria-live="polite">
+        <span class="visually-hidden">Loading icon details…</span>
+        <mat-progress-bar mode="indeterminate" aria-label="Loading icon details"></mat-progress-bar>
+        <div class="skeleton-layout" aria-hidden="true">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-body">
+            <span class="skeleton-line skeleton-line-sm"></span>
+            <span class="skeleton-line skeleton-line-lg"></span>
+            <span class="skeleton-line"></span>
+            <span class="skeleton-line"></span>
+            <span class="skeleton-line skeleton-line-md"></span>
+          </div>
+        </div>
+      </div>
+    } @else if (notFound) {
+      <div class="state-container" role="alert">
+        <p class="eyebrow">Not found</p>
+        <h1>This icon isn't in the archive</h1>
+        <p>The icon may have been removed or the link may be incorrect.</p>
+        <a mat-flat-button class="button button-primary" routerLink="/icons">Back to the gallery</a>
+      </div>
+    } @else if (error) {
+      <div class="state-container state-error" role="alert">
+        <p class="eyebrow">Something went wrong</p>
+        <h1>Unable to load this icon</h1>
+        <p>We couldn't reach the archive. Please check your connection and try again.</p>
+        <button mat-stroked-button type="button" (click)="retry()">Try again</button>
+      </div>
+    } @else {
+      @if (icon; as icon) {
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a routerLink="/icons">Icon gallery</a>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">{{ icon.title }}</span>
+        </nav>
+
+        <article class="detail-card">
+          <div class="media">
+            <figure class="main-figure">
+              @if (mainImageUrl) {
+                <img
+                  [src]="mainImageUrl"
+                  [alt]="mainImageAlt"
+                  width="1200"
+                  height="1500"
+                  (error)="onMainImageError()"
+                />
+              } @else {
+                <div class="image-placeholder">
+                  <span>No image available</span>
+                </div>
+              }
+            </figure>
+          </div>
+
+          <div class="detail-body">
+            <header class="detail-header">
+              <p class="eyebrow">
+                @if (icon.referenceCode) {
+                  Icon {{ icon.referenceCode }}
+                } @else {
+                  Icon
+                }
+              </p>
+              <h1 id="icon-title">{{ icon.title }}</h1>
+              @if (icon.category) {
+                <p class="category">{{ icon.category }}</p>
+              }
+            </header>
+
+            <section class="detail-section" aria-labelledby="saint-heading">
+              <h2 id="saint-heading" class="section-label">Saint / figure</h2>
+              <p class="saint-name">{{ saintName }}</p>
+
+              @if (alternativeNames.length > 0) {
+                <div class="alternative-names">
+                  <span class="field-label">Alternative names</span>
+                  <ul>
+                    @for (name of alternativeNames; track name) {
+                      <li>{{ name }}</li>
+                    }
+                  </ul>
+                </div>
+              }
+
+              @if (amharicName || geezName) {
+                <dl class="name-grid">
+                  @if (amharicName) {
+                    <div>
+                      <dt>Amharic</dt>
+                      <dd lang="am">{{ amharicName }}</dd>
+                    </div>
+                  }
+                  @if (geezName) {
+                    <div>
+                      <dt>Ge'ez</dt>
+                      <dd lang="gez">{{ geezName }}</dd>
+                    </div>
+                  }
+                </dl>
+              }
+            </section>
+
+            <section class="detail-section" aria-labelledby="church-heading">
+              <h2 id="church-heading" class="section-label">Church and location</h2>
+              <dl class="meta-grid">
+                <div>
+                  <dt>Church</dt>
+                  <dd>{{ churchName }}</dd>
+                </div>
+                <div>
+                  <dt>Town</dt>
+                  <dd>{{ town }}</dd>
+                </div>
+                <div>
+                  <dt>Region</dt>
+                  <dd>{{ region }}</dd>
+                </div>
+                <div>
+                  <dt>Country</dt>
+                  <dd>{{ country }}</dd>
+                </div>
+              </dl>
+            </section>
+
+            <div class="supporting-grid">
+              <section class="detail-panel" aria-labelledby="contributor-heading">
+                <h2 id="contributor-heading" class="section-label">Contributor</h2>
+                <p class="panel-value">{{ contributorCredit }}</p>
+              </section>
+
+              <section class="detail-panel" aria-labelledby="dates-heading">
+                <h2 id="dates-heading" class="section-label">Dates</h2>
+                @if (captureDateLabel || submittedDateLabel || publishedDateLabel) {
+                  <dl class="date-list">
+                    @if (captureDateLabel) {
+                      <div>
+                        <dt>Captured</dt>
+                        <dd>{{ captureDateLabel }}</dd>
+                      </div>
+                    }
+                    @if (submittedDateLabel) {
+                      <div>
+                        <dt>Submitted</dt>
+                        <dd>{{ submittedDateLabel }}</dd>
+                      </div>
+                    }
+                    @if (publishedDateLabel) {
+                      <div>
+                        <dt>Published</dt>
+                        <dd>{{ publishedDateLabel }}</dd>
+                      </div>
+                    }
+                  </dl>
+                } @else {
+                  <p class="panel-value muted">No dates recorded</p>
+                }
+              </section>
+            </div>
+
+            <section class="verification" aria-labelledby="verification-heading">
+              <div class="verification-header">
+                <h2 id="verification-heading" class="section-label">Verification</h2>
+                <span class="status-badge">{{ verificationSummaryLabel }}</span>
+              </div>
+
+              <ul class="verification-list">
+                @for (item of verificationItems; track item.label) {
+                  <li>
+                    <span class="verification-label">{{ item.label }}</span>
+                    <span class="verification-value" [ngClass]="'tone-' + item.tone">{{ item.value }}</span>
+                  </li>
+                }
+              </ul>
+            </section>
+
+            @if (icon.description) {
+              <section class="detail-section" aria-labelledby="description-heading">
+                <h2 id="description-heading" class="section-label">About this icon</h2>
+                <p class="prose">{{ icon.description }}</p>
+              </section>
+            }
+
+            @if (icon.historicalNotes) {
+              <section class="detail-section" aria-labelledby="notes-heading">
+                <h2 id="notes-heading" class="section-label">Historical notes</h2>
+                <p class="prose">{{ icon.historicalNotes }}</p>
+              </section>
+            }
+
+            <a mat-stroked-button class="back-link" routerLink="/icons">Back to the gallery</a>
+          </div>
+        </article>
+      }
+    }
+  </div>
+</section>
