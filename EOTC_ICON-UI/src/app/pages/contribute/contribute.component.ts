@@ -109,6 +109,9 @@ export class ContributeComponent implements OnInit {
   }
 
   addAlternativeName(): void {
+    if (this.alternativeNamesArray.length >= 3) {
+      return;
+    }
     this.alternativeNamesArray.push(this.createAlternativeNameControl());
   }
 

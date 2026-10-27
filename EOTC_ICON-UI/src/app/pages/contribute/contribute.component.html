@@ -128,9 +128,9 @@
         <div class="alternative-names">
           <div class="alternative-header">
             <span>Alternative names (optional)</span>
-            <button mat-button type="button" (click)="addAlternativeName()">
+            <button mat-button type="button" (click)="addAlternativeName()" [disabled]="alternativeNamesArray.length >= 3">
               <mat-icon>add</mat-icon>
-              Add name
+              <span>Add name</span>
             </button>
           </div>
           @for (ctrl of alternativeNameControls; track $index) {
