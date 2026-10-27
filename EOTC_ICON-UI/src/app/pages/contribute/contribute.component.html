@@ -1,0 +1,240 @@
+<section class="contribute">
+  <div class="contribute-inner">
+    <header class="page-header">
+      <p class="eyebrow">Contribute</p>
+      <h1>Share an icon or wall painting</h1>
+      <p class="intro">
+        Help preserve EOTC sacred art by sharing photographs and information. No account is required to submit
+        for now. Every contribution is reviewed before publication.
+      </p>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="contribute-form">
+      <section class="form-section">
+        <header class="section-header">
+          <h2>Photos</h2>
+          <p>At least one photo is required. Supported formats: JPG, PNG, HEIC.</p>
+        </header>
+
+        <div class="photo-upload">
+          <input
+            #fileInput
+            type="file"
+            accept="image/*"
+            multiple
+            (change)="onFilesSelected($event)"
+            aria-label="Select photos to upload"
+          />
+          <button mat-stroked-button type="button" (click)="fileInput.click()">
+            <mat-icon>add_photo_alternate</mat-icon>
+            Add photos
+          </button>
+          @if (photosArray.hasError('required') && submitted) {
+            <p class="field-error">Please upload at least one photo.</p>
+          }
+        </div>
+
+        @if (photos.length > 0) {
+          <ul class="photo-list">
+            @for (photo of photos; track $index) {
+              <li>
+                <span class="photo-name">{{ photo.name }}</span>
+                <button mat-icon-button type="button" (click)="removePhoto($index)" aria-label="Remove photo">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+
+      <section class="form-section">
+        <header class="section-header">
+          <h2>Location</h2>
+          <p>Tell us where this icon is located.</p>
+        </header>
+
+        <div class="grid two-col">
+          <mat-form-field appearance="outline">
+            <mat-label>Church name</mat-label>
+            <input matInput formControlName="churchName" required />
+            @if (form.get('churchName')?.touched && form.get('churchName')?.hasError('required')) {
+              <mat-error>Church name is required</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Town/City</mat-label>
+            <input matInput formControlName="town" />
+          </mat-form-field>
+        </div>
+
+        <div class="grid three-col">
+          <mat-form-field appearance="outline">
+            <mat-label>Region/State</mat-label>
+            <input matInput formControlName="region" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Country</mat-label>
+            <input matInput formControlName="country" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Location details</mat-label>
+            <input matInput formControlName="locationInfo" required placeholder="e.g. Inside the northern wall" />
+            @if (form.get('locationInfo')?.touched && form.get('locationInfo')?.hasError('required')) {
+              <mat-error>Location details are required</mat-error>
+            }
+            @if (form.get('locationInfo')?.hasError('maxlength')) {
+              <mat-error>Must be 500 characters or less</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="grid two-col">
+          <mat-form-field appearance="outline">
+            <mat-label>GPS Latitude (optional)</mat-label>
+            <input matInput formControlName="gpsLat" type="number" step="any" placeholder="e.g. 9.0054" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>GPS Longitude (optional)</mat-label>
+            <input matInput formControlName="gpsLng" type="number" step="any" placeholder="e.g. 38.7636" />
+          </mat-form-field>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <header class="section-header">
+          <h2>Subject</h2>
+          <p>Saint name is optional - leave unknown if not sure.</p>
+        </header>
+
+        <div class="grid two-col">
+          <mat-form-field appearance="outline">
+            <mat-label>Saint name (optional)</mat-label>
+            <input matInput formControlName="saintName" placeholder="Leave blank if unknown" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Category (optional)</mat-label>
+            <mat-select formControlName="category">
+              <mat-option value="">None</mat-option>
+              @for (cat of categories; track cat) {
+                <mat-option [value]="cat">{{ cat }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="alternative-names">
+          <div class="alternative-header">
+            <span>Alternative names (optional)</span>
+            <button mat-button type="button" (click)="addAlternativeName()">
+              <mat-icon>add</mat-icon>
+              Add name
+            </button>
+          </div>
+          @for (ctrl of alternativeNameControls; track $index) {
+            <div class="alternative-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Alternative name</mat-label>
+                <input matInput [formControl]="ctrl" />
+              </mat-form-field>
+              <button mat-icon-button type="button" (click)="removeAlternativeName($index)" aria-label="Remove alternative name">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="form-section">
+        <header class="section-header">
+          <h2>Description & Dates</h2>
+        </header>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Description (optional)</mat-label>
+          <textarea matInput formControlName="description" rows="4" placeholder="Brief description of the icon"></textarea>
+          @if (form.get('description')?.hasError('maxlength')) {
+            <mat-error>Must be 2000 characters or less</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="grid two-col">
+          <mat-form-field appearance="outline">
+            <mat-label>Dates (optional)</mat-label>
+            <input matInput formControlName="dates" placeholder="e.g. 18th century" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Artwork date start (optional)</mat-label>
+            <input matInput formControlName="artworkDateStart" type="number" placeholder="e.g. 1700" />
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Artwork date end (optional)</mat-label>
+          <input matInput formControlName="artworkDateEnd" type="number" placeholder="e.g. 1799" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Notes (optional)</mat-label>
+          <textarea matInput formControlName="notes" rows="3" placeholder="Additional notes about this icon"></textarea>
+          @if (form.get('notes')?.hasError('maxlength')) {
+            <mat-error>Must be 2000 characters or less</mat-error>
+          }
+        </mat-form-field>
+      </section>
+
+      <section class="form-section">
+        <header class="section-header">
+          <h2>Attribution & Contact</h2>
+        </header>
+
+        <div class="attribution-group">
+          <label class="group-label">Attribution preference</label>
+          <mat-radio-group formControlName="attributionPreference" class="radio-group">
+            @for (opt of attributionOptions; track opt.value) {
+              <mat-radio-button [value]="opt.value">
+                <div class="radio-content">
+                  <span class="radio-label">{{ opt.label }}</span>
+                  <span class="radio-desc">{{ opt.description }}</span>
+                </div>
+              </mat-radio-button>
+            }
+          </mat-radio-group>
+        </div>
+
+        @if (form.get('attributionPreference')?.value === 'display-name') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Display name</mat-label>
+            <input matInput formControlName="attributionName" required />
+            @if (form.get('attributionName')?.touched && form.get('attributionName')?.hasError('required')) {
+              <mat-error>Display name is required when crediting</mat-error>
+            }
+          </mat-form-field>
+        }
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contact email (optional)</mat-label>
+          <input matInput formControlName="contactEmail" type="email" placeholder="your.email@example.com" />
+          @if (form.get('contactEmail')?.hasError('email')) {
+            <mat-error>Enter a valid email address</mat-error>
+          }
+        </mat-form-field>
+      </section>
+
+      <section class="form-section permission-section">
+        <mat-checkbox formControlName="permissionConfirmation" required>
+          I confirm I have permission to share these photos and information
+        </mat-checkbox>
+        @if (form.get('permissionConfirmation')?.touched && form.get('permissionConfirmation')?.hasError('required')) {
+          <p class="field-error">Permission confirmation is required</p>
+        }
+      </section>
+
+      <div class="form-actions">
+        <button mat-flat-button color="primary" type="submit">Submit contribution</button>
+      </div>
+    </form>
+  </div>
+</section>
