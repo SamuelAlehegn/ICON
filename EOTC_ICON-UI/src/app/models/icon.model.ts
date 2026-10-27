@@ -104,3 +104,20 @@ export interface PageResponse<T> {
   first: boolean;
   last: boolean;
 }
+
+export interface ChurchDetail extends ChurchSummary {
+  description?: string | null;
+  history?: string | null;
+  iconCount?: number | null;
+  icons?: IconSummary[] | null;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}

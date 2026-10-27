@@ -1,0 +1,68 @@
+<section class="church-detail" aria-labelledby="church-title">
+  @if (loading) {
+    <mat-progress-bar mode="indeterminate" aria-label="Loading church details"></mat-progress-bar>
+  } @else if (error) {
+    <div class="state-card error">
+      <h2>Church not found</h2>
+      <p>We couldn't load this church. It may have been removed or is unavailable.</p>
+    <div class="actions">
+      <button mat-flat-button color="primary" (click)="goBack()">Back to directory</button>
+      <button mat-stroked-button (click)="retry()">Retry</button>
+    </div>
+    </div>
+  } @else if (church) {
+    <header class="detail-header">
+      <button mat-button (click)="goBack()">
+        <span aria-hidden="true">←</span> Back to churches
+      </button>
+      <h1 id="church-title" class="church-title">{{ church.name }}</h1>
+      <p class="church-location">{{ getLocation(church) }}</p>
+    </header>
+
+    <div class="detail-grid">
+      <section class="info-card">
+        <h2>About</h2>
+        <p>{{ church.description || church.history || 'No description available.' }}</p>
+        <dl class="meta-list">
+          <div>
+            <dt>Region</dt>
+            <dd>{{ church.region || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Town</dt>
+            <dd>{{ church.town || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Country</dt>
+            <dd>{{ church.country || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Icons</dt>
+            <dd>{{ church.iconCount ?? church.icons?.length ?? 0 }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="icons-card">
+        <header class="icons-header">
+          <h2>Associated Icons</h2>
+          <a mat-stroked-button [routerLink]="['/icons']" [queryParams]="{ churchId: church.id }">View all</a>
+        </header>
+        @if ((church.icons?.length || 0) === 0) {
+          <p class="empty">No icons associated with this church yet.</p>
+        } @else {
+          <ul class="icons-list">
+            @for (icon of church.icons | slice:0:6; track icon.id) {
+              <li class="icon-item">
+                <a [routerLink]="['/icons', icon.id || icon.slug]">{{ icon.title }}</a>
+                @if (icon.depictedFigure) {
+                  <span class="icon-figure"> — {{ icon.depictedFigure }}</span>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  }
+</section>
