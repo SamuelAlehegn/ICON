@@ -272,8 +272,24 @@
         }
       </section>
 
+      @if (submitError) {
+        <div class="submit-error">
+          <mat-icon>error</mat-icon>
+          <span>{{ submitError }}</span>
+        </div>
+      }
+
+      @if (uploading) {
+        <div class="upload-progress">
+          <p class="progress-label">Uploading contribution... {{ uploadProgress }}%</p>
+          <mat-progress-bar mode="determinate" [value]="uploadProgress"></mat-progress-bar>
+        </div>
+      }
+
       <div class="form-actions">
-        <button mat-flat-button color="primary" type="submit">Submit contribution</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="uploading">
+          {{ uploading ? 'Submitting...' : 'Submit contribution' }}
+        </button>
       </div>
     </form>
   </div>

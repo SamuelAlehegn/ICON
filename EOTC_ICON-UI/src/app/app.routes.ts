@@ -11,7 +11,8 @@ export const routes: Routes = [
       { path: 'icons/:id', loadComponent: () => import('./pages/icon-detail/icon-detail.component').then(m => m.IconDetailComponent) },
       { path: 'learn-iconography', loadComponent: () => import('./pages/learn-iconography/learn-iconography.component').then(m => m.LearnIconographyComponent) },
       { path: 'resources', loadComponent: () => import('./pages/resources/resources.component').then(m => m.ResourcesComponent) },
-      { path: 'contribute', loadComponent: () => import('./pages/contribute/contribute.component').then(m => m.ContributeComponent) }
+      { path: 'contribute', loadComponent: () => import('./pages/contribute/contribute.component').then(m => m.ContributeComponent) },
+      { path: 'contribute/success', loadComponent: () => import('./pages/contribute-success/contribute-success.component').then(m => m.ContributeSuccessComponent) }
     ]
   },
   { path: '**', redirectTo: '' }

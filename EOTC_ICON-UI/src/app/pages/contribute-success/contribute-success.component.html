@@ -1,0 +1,69 @@
+<section class="success">
+  <div class="success-inner">
+    <mat-card class="success-card">
+      <mat-card-header>
+        <mat-icon class="success-icon">check_circle</mat-icon>
+        <mat-card-title>Thank you for your contribution!</mat-card-title>
+        <mat-card-subtitle>Your submission has been received.</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="reference-box">
+          <p class="label">Submission Reference</p>
+          <p class="reference-code">{{ referenceCode }}</p>
+          <p class="hint">Save this reference code to check your submission status.</p>
+        </div>
+
+        @if (loading) {
+          <p class="status-text">Loading submission status...</p>
+        }
+
+        @if (error && !loading) {
+          <p class="error-text">{{ error }}</p>
+        }
+
+        @if (status && !loading) {
+          <div class="status-details">
+            <div class="status-row">
+              <span class="status-label">Status</span>
+              <span class="status-value">{{ status.status }}</span>
+            </div>
+            @if (status.title) {
+              <div class="status-row">
+                <span class="status-label">Title</span>
+                <span class="status-value">{{ status.title }}</span>
+              </div>
+            }
+            @if (status.churchName) {
+              <div class="status-row">
+                <span class="status-label">Church</span>
+                <span class="status-value">{{ status.churchName }}</span>
+              </div>
+            }
+            @if (status.imageCount) {
+              <div class="status-row">
+                <span class="status-label">Images</span>
+                <span class="status-value">{{ status.imageCount }}</span>
+              </div>
+            }
+            @if (status.moderatorNotes) {
+              <div class="moderator-notes">
+                <p class="notes-label">Moderator Notes</p>
+                <p class="notes-content">{{ status.moderatorNotes }}</p>
+              </div>
+            }
+          </div>
+        }
+
+        <p class="info-text">
+          Your submission is now under review. We'll notify you via the contact email provided if applicable.
+        </p>
+      </mat-card-content>
+
+      <mat-card-actions class="actions">
+        <button mat-flat-button color="primary" (click)="contributeAgain()">Submit Another Contribution</button>
+        <button mat-stroked-button (click)="goHome()">Return to Home</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</section>
