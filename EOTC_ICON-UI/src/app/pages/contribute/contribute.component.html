@@ -13,38 +13,78 @@
       <section class="form-section">
         <header class="section-header">
           <h2>Photos</h2>
-          <p>At least one photo is required. Supported formats: JPG, PNG, HEIC.</p>
+          <p>At least one photo is required. Supported formats: JPG, PNG, HEIC, WebP. Max size: 10 MB per image.</p>
         </header>
 
-        <div class="photo-upload">
+        <div
+          class="photo-dropzone"
+          [class.drag-over]="isDragOver"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+          role="button"
+          tabindex="0"
+          (click)="fileInput.click()"
+          (keydown.enter)="fileInput.click()"
+          (keydown.space)="$event.preventDefault(); fileInput.click()"
+          aria-label="Drag and drop photos here or click to browse"
+        >
           <input
             #fileInput
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/jpg,image/png,image/heic,image/heif,image/webp"
             multiple
             (change)="onFilesSelected($event)"
             aria-label="Select photos to upload"
           />
-          <button mat-stroked-button type="button" (click)="fileInput.click()">
+          <mat-icon class="dropzone-icon">cloud_upload</mat-icon>
+          <p class="dropzone-title">Drag and drop photos here</p>
+          <p class="dropzone-subtitle">or click to browse</p>
+          <button mat-stroked-button type="button" (click)="$event.stopPropagation(); fileInput.click()">
             <mat-icon>add_photo_alternate</mat-icon>
             Add photos
           </button>
-          @if (photosArray.hasError('required') && submitted) {
-            <p class="field-error">Please upload at least one photo.</p>
-          }
         </div>
 
-        @if (photos.length > 0) {
-          <ul class="photo-list">
-            @for (photo of photos; track $index) {
-              <li>
-                <span class="photo-name">{{ photo.name }}</span>
-                <button mat-icon-button type="button" (click)="removePhoto($index)" aria-label="Remove photo">
-                  <mat-icon>close</mat-icon>
-                </button>
-              </li>
+        @if (photoErrors.length > 0) {
+          <ul class="photo-errors">
+            @for (error of photoErrors; track error) {
+              <li class="field-error">{{ error }}</li>
             }
           </ul>
+        }
+
+        @if (photosArray.hasError('required') && submitted) {
+          <p class="field-error">Please upload at least one photo.</p>
+        }
+
+        @if (photos.length > 0) {
+          <div class="photo-grid">
+            @for (photo of photos; track $index) {
+              <div class="photo-card">
+                <img [src]="photo.url" [alt]="photo.file.name" class="photo-preview" />
+                <div class="photo-card-overlay">
+                  <span class="photo-card-name" [title]="photo.file.name">{{ photo.file.name }}</span>
+                  <div class="photo-card-actions">
+                    <input
+                      #replaceInput
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/heic,image/heif,image/webp"
+                      (change)="replacePhoto($index, $event)"
+                      class="replace-input"
+                      aria-label="Replace photo"
+                    />
+                    <button mat-icon-button type="button" (click)="$event.stopPropagation(); replaceInput.click()" aria-label="Replace photo">
+                      <mat-icon>swap_horiz</mat-icon>
+                    </button>
+                    <button mat-icon-button type="button" (click)="removePhoto($index)" aria-label="Remove photo">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
         }
       </section>
 
