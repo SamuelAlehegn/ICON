@@ -1,8 +1,10 @@
 package com.eotcicon.security;
 
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -31,7 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
 			String userId = tokenProvider.getUserIdFromToken(token);
 			String role = tokenProvider.getRoleFromToken(token);
-			var authorities = role != null
+			List<GrantedAuthority> authorities = role != null
 					? Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
 					: Collections.emptyList();
 			UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userId,
