@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterLink } from '@angular/router';
 import { debounceTime } from 'rxjs';
-import { SaintSummary } from '../../models/icon.model';
+import { SaintSummary } from '../../models/saint.model';
 import { SaintService } from '../../services/saint.service';
 
 @Component({

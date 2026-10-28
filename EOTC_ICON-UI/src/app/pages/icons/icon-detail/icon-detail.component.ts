@@ -5,8 +5,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { IconDetail, IconImage, IconSubject, SaintSummary } from '../../models/icon.model';
-import { IconService } from '../../services/icon.service';
+import { IconDetail, IconImage, IconSubject } from '../../../models/icon.model';
+import { SaintSummary } from '../../../models/saint.model';
+import { IconService } from '../../../services/icon.service';
 
 interface VerificationItem {
   label: string;

@@ -1,3 +1,6 @@
+import { ChurchSummary } from './church.model';
+import { SaintSummary } from './saint.model';
+
 export interface IconSummary {
   id: string;
   slug: string;
@@ -14,46 +17,6 @@ export interface IconSummary {
   thumbnailUrl?: string | null;
   imageUrl?: string | null;
   altText?: string | null;
-}
-
-export interface ChurchSummary {
-  id: string;
-  slug: string;
-  name: string;
-  region?: string | null;
-  town?: string | null;
-  country?: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
-}
-
-export interface SaintSummary {
-  id: string;
-  slug: string;
-  canonicalName: string;
-  amharicName?: string | null;
-  geezName?: string | null;
-  category?: string | null;
-  verified: boolean;
-  iconCount?: number | null;
-}
-
-export interface SaintDetail {
-  id: string;
-  slug: string;
-  canonicalName: string;
-  amharicName?: string | null;
-  geezName?: string | null;
-  category?: string | null;
-  description?: string | null;
-  verified: boolean;
-  status?: string | null;
-  aliases?: string[] | null;
-  iconCount: number;
-  depictions?: IconSummary[] | null;
-  churches?: ChurchSummary[] | null;
-  createdAt?: string | null;
-  updatedAt?: string | null;
 }
 
 export interface ImageRights {
@@ -111,31 +74,4 @@ export interface IconDetail {
   moreFromChurch?: IconSummary[] | null;
   createdAt?: string | null;
   updatedAt?: string | null;
-}
-
-export interface PageResponse<T> {
-  content: T[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-  first: boolean;
-  last: boolean;
-}
-
-export interface ChurchDetail extends ChurchSummary {
-  description?: string | null;
-  history?: string | null;
-  iconCount?: number | null;
-  icons?: IconSummary[] | null;
-}
-
-export interface PageResponse<T> {
-  content: T[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrevious: boolean;
 }

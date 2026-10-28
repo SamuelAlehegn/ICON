@@ -6,9 +6,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ChurchSummary, IconSummary, SaintDetail } from '../../models/icon.model';
-import { SaintService } from '../../services/saint.service';
-import { LazyImageDirective } from '../../directives/lazy-image.directive';
+import { SaintDetail } from '../../../models/saint.model';
+import { ChurchSummary } from '../../../models/church.model';
+import { IconSummary } from '../../../models/icon.model';
+import { SaintService } from '../../../services/saint.service';
+import { LazyImageDirective } from '../../../directives/lazy-image.directive';
 
 @Component({
   selector: 'app-saint-detail',
