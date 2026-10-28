@@ -29,7 +29,6 @@ export class HeaderComponent {
     { label: 'Churches', path: '/churches' },
     { label: 'Saints', path: '/saints' },
     { label: 'Map', path: '/map' },
-    { label: 'Learn Iconography', path: '/learn-iconography' },
-    { label: 'My submissions', path: '/account' }
+    { label: 'Learn Iconography', path: '/learn-iconography' }
   ];
 }

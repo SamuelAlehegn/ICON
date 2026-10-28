@@ -10,7 +10,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTabsModule } from '@angular/material/tabs';
 import { ContributionService } from '../../services/contribution.service';
+import { AccountComponent } from '../account/account.component';
 
 interface AttributionOption {
   value: 'display-name' | 'anonymous';
@@ -40,6 +42,8 @@ const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/heic
     MatProgressBarModule,
     MatRadioModule,
     MatSelectModule,
+    MatTabsModule,
+    AccountComponent,
   ],
   templateUrl: './contribute.component.html',
   styleUrl: './contribute.component.scss',
