@@ -1,5 +1,6 @@
 package com.eotcicon.repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,6 +22,11 @@ public interface IconRepository extends JpaRepository<Icon, UUID> {
 	boolean existsBySlug(String slug);
 
 	boolean existsByReferenceCode(String referenceCode);
+
+	@Query("SELECT i FROM Icon i WHERE i.contributor.id = :userId "
+			+ "OR LOWER(i.contactEmail) = LOWER(:email) "
+			+ "ORDER BY i.createdAt DESC")
+	List<Icon> findOwnedBy(@Param("userId") UUID userId, @Param("email") String email);
 
 	Page<Icon> findByPublicationStatus(PublicationStatus publicationStatus, Pageable pageable);
 

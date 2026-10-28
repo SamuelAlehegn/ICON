@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -25,6 +26,20 @@ public class GlobalExceptionHandler {
 		ApiError error = ApiError.of(HttpStatus.NOT_FOUND.value(), "Not Found", ex.getMessage(),
 				request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+	}
+
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<ApiError> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
+		ApiError error = ApiError.of(HttpStatus.FORBIDDEN.value(), "Forbidden", ex.getMessage(),
+				request.getRequestURI());
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+	}
+
+	@ExceptionHandler(IllegalStateException.class)
+	public ResponseEntity<ApiError> handleConflict(IllegalStateException ex, HttpServletRequest request) {
+		ApiError error = ApiError.of(HttpStatus.CONFLICT.value(), "Conflict", ex.getMessage(),
+				request.getRequestURI());
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)

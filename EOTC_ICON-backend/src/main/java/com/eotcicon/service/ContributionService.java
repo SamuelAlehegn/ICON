@@ -47,12 +47,13 @@ public class ContributionService {
 	private final ImageValidationService imageValidationService;
 	private final ThumbnailService thumbnailService;
 	private final RateLimitService rateLimitService;
+	private final CurrentUserService currentUserService;
 
 	public ContributionService(IconRepository iconRepository, IconImageRepository iconImageRepository,
 			ContributionReviewRepository contributionReviewRepository, ChurchRepository churchRepository,
 			UserRepository userRepository, StorageService storageService,
 			ImageValidationService imageValidationService, ThumbnailService thumbnailService,
-			RateLimitService rateLimitService) {
+			RateLimitService rateLimitService, CurrentUserService currentUserService) {
 		this.iconRepository = iconRepository;
 		this.iconImageRepository = iconImageRepository;
 		this.contributionReviewRepository = contributionReviewRepository;
@@ -62,6 +63,7 @@ public class ContributionService {
 		this.imageValidationService = imageValidationService;
 		this.thumbnailService = thumbnailService;
 		this.rateLimitService = rateLimitService;
+		this.currentUserService = currentUserService;
 	}
 
 	public ContributionCreatedDto submitContribution(ContributionRequest request) {
@@ -100,6 +102,7 @@ public class ContributionService {
 		icon.setAttributionPreference(parseAttribution(request.attributionPreference()));
 		icon.setContributorDisplayName(resolveDisplayName(request));
 		icon.setContactEmail(request.contactEmail());
+		currentUserService.findCurrentUser().ifPresent(icon::setContributor);
 
 		if (StringUtils.hasText(request.capturedDate())) {
 			try {
