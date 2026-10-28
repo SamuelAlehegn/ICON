@@ -1,3 +1,6 @@
+import { IconSummary } from './icon.model';
+import { ChurchSummary } from './church.model';
+
 export interface SaintSummary {
   id: string;
   slug: string;
@@ -26,6 +29,3 @@ export interface SaintDetail {
   createdAt?: string | null;
   updatedAt?: string | null;
 }
-
-import { IconSummary } from './icon.model';
-import { ChurchSummary } from './church.model';

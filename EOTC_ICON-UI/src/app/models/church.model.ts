@@ -1,3 +1,5 @@
+import { IconSummary } from './icon.model';
+
 export interface ChurchSummary {
   id: string;
   slug: string;
@@ -15,5 +17,3 @@ export interface ChurchDetail extends ChurchSummary {
   iconCount?: number | null;
   icons?: IconSummary[] | null;
 }
-
-import { IconSummary } from './icon.model';
