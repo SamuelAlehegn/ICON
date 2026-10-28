@@ -16,7 +16,8 @@ export const routes: Routes = [
       { path: 'contribute', loadComponent: () => import('./pages/contribute/contribute.component').then(m => m.ContributeComponent) },
       { path: 'contribute/success', loadComponent: () => import('./pages/contribute/contribute-success/contribute-success.component').then(m => m.ContributeSuccessComponent) },
       { path: 'churches', loadComponent: () => import('./pages/churches/churches.component').then(m => m.ChurchesComponent) },
-      { path: 'churches/:id', loadComponent: () => import('./pages/churches/church-detail/church-detail.component').then(m => m.ChurchDetailComponent) }
+      { path: 'churches/:id', loadComponent: () => import('./pages/churches/church-detail/church-detail.component').then(m => m.ChurchDetailComponent) },
+      { path: 'map', loadComponent: () => import('./pages/map/map.component').then(m => m.MapComponent) }
     ]
   },
   { path: '**', redirectTo: '' }
