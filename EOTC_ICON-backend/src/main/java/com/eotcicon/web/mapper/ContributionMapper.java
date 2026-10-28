@@ -9,6 +9,7 @@ import com.eotcicon.domain.Icon;
 import com.eotcicon.domain.IconImage;
 import com.eotcicon.domain.IconSubject;
 import com.eotcicon.web.dto.church.ChurchSummaryDto;
+import com.eotcicon.web.dto.contribution.AccountSubmissionDto;
 import com.eotcicon.web.dto.contribution.AdminSubmissionDetailDto;
 import com.eotcicon.web.dto.contribution.ContributionCreatedDto;
 import com.eotcicon.web.dto.contribution.ContributionStatusDto;
@@ -55,6 +56,42 @@ public final class ContributionMapper {
 				icon.getUpdatedAt());
 	}
 
+	public static AccountSubmissionDto toAccountDetail(Icon icon, Function<String, String> mediaUrlResolver) {
+		ChurchSummaryDto church = ChurchMapper.toSummary(icon.getChurch());
+		List<IconSubjectDto> subjects = safeSubjects(icon).stream()
+				.map(IconMapper::toSubjectDto)
+				.toList();
+		List<IconImageDto> images = safeImages(icon).stream()
+				.map(image -> IconMapper.toImageDto(image, mediaUrlResolver))
+				.toList();
+		List<ReviewHistoryDto> reviews = sortedReviews(icon);
+		return new AccountSubmissionDto(
+				icon.getId(),
+				icon.getReferenceCode(),
+				icon.getSlug(),
+				icon.getTitle(),
+				icon.getPublicationStatus(),
+				icon.getDescription(),
+				icon.getHistoricalNotes(),
+				icon.getCategory(),
+				icon.getFigureCertainty(),
+				icon.getCaptureDate(),
+				icon.getArtworkDateStart(),
+				icon.getArtworkDateEnd(),
+				icon.getContributorDisplayName(),
+				icon.getAttributionPreference(),
+				IconMapper.contributorCredit(icon),
+				icon.getContactEmail(),
+				icon.getModerationNotes(),
+				icon.getPublishedAt(),
+				church,
+				subjects,
+				images,
+				reviews,
+				icon.getCreatedAt(),
+				icon.getUpdatedAt());
+	}
+
 	public static AdminSubmissionDetailDto toAdminDetail(Icon icon, Function<String, String> mediaUrlResolver) {
 		ChurchSummaryDto church = ChurchMapper.toSummary(icon.getChurch());
 		List<IconSubjectDto> subjects = safeSubjects(icon).stream()
@@ -63,11 +100,7 @@ public final class ContributionMapper {
 		List<IconImageDto> images = safeImages(icon).stream()
 				.map(image -> IconMapper.toImageDto(image, mediaUrlResolver))
 				.toList();
-		List<ReviewHistoryDto> reviews = safeReviews(icon).stream()
-				.sorted(Comparator.comparing(ContributionReview::getCreatedAt,
-						Comparator.nullsLast(Comparator.naturalOrder())))
-				.map(ContributionMapper::toReview)
-				.toList();
+		List<ReviewHistoryDto> reviews = sortedReviews(icon);
 		return new AdminSubmissionDetailDto(
 				icon.getId(),
 				icon.getReferenceCode(),
@@ -107,6 +140,14 @@ public final class ContributionMapper {
 				review.getReviewer() == null ? null : review.getReviewer().getId(),
 				review.getReviewer() == null ? null : review.getReviewer().getDisplayName(),
 				review.getCreatedAt());
+	}
+
+	private static List<ReviewHistoryDto> sortedReviews(Icon icon) {
+		return safeReviews(icon).stream()
+				.sorted(Comparator.comparing(ContributionReview::getCreatedAt,
+						Comparator.nullsLast(Comparator.naturalOrder())))
+				.map(ContributionMapper::toReview)
+				.toList();
 	}
 
 	private static String churchName(Icon icon) {

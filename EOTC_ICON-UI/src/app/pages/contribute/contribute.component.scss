@@ -281,6 +281,14 @@
   font-size: 0.9rem;
 }
 
+.contribute-tabs {
+  margin-top: clamp(1rem, 2vw, 1.5rem);
+}
+
+.submissions-tab {
+  padding-top: clamp(1rem, 2vw, 1.5rem);
+}
+
 @media (max-width: 640px) {
   .contribute {
     padding: 1.5rem 1rem 3rem;

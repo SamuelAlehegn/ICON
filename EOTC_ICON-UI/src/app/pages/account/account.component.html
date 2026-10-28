@@ -1,0 +1,254 @@
+<section class="account-page" aria-labelledby="account-title">
+  <div class="account-inner">
+    <header class="page-header">
+      <p class="eyebrow">Your contributions</p>
+      <h1 id="account-title">My submissions</h1>
+      <p class="page-intro">
+        Track the review status of the records you have contributed, update their details while they are
+        pending, or ask the archive team for a correction or removal.
+      </p>
+    </header>
+
+    @if (loading) {
+      <div class="loading-state" role="status" aria-live="polite">
+        <span class="visually-hidden">Loading your submissions…</span>
+        <mat-progress-bar mode="indeterminate" aria-label="Loading your submissions"></mat-progress-bar>
+      </div>
+    }
+
+    @if (error) {
+      <div class="notice notice-error" role="alert">
+        <mat-icon aria-hidden="true">error_outline</mat-icon>
+        <div>
+          <p>{{ error }}</p>
+          <button mat-stroked-button type="button" (click)="loadSubmissions()">Try again</button>
+        </div>
+      </div>
+    }
+
+    @if (successMessage) {
+      <div class="notice notice-success" role="status">
+        <mat-icon aria-hidden="true">check_circle</mat-icon>
+        <p>{{ successMessage }}</p>
+        <button mat-icon-button type="button" aria-label="Dismiss message" (click)="successMessage = ''">
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+      </div>
+    }
+
+    @if (!loading && !error && submissions.length === 0) {
+      <div class="empty-state">
+        <mat-icon aria-hidden="true">photo_library</mat-icon>
+        <h2>No submissions yet</h2>
+        <p>When you contribute an icon it will appear here so you can follow its review.</p>
+        <a mat-flat-button routerLink="/contribute">Contribute an icon</a>
+      </div>
+    }
+
+    @for (submission of submissions; track submission.id) {
+      <mat-card class="submission-card">
+        <div class="submission-overview">
+          <div class="thumbnail">
+            @if (primaryImageUrl(submission)) {
+              <img [src]="primaryImageUrl(submission)" [alt]="submission.title" loading="lazy" />
+            } @else {
+              <mat-icon aria-hidden="true">image</mat-icon>
+            }
+          </div>
+
+          <div class="summary">
+            <div class="summary-heading">
+              <div>
+                <p class="reference">{{ submission.referenceCode }}</p>
+                <h2>{{ submission.title }}</h2>
+              </div>
+              <span class="status-badge" [ngClass]="statusClass(submission.status)">
+                {{ statusLabel(submission.status) }}
+              </span>
+            </div>
+
+            <dl class="meta-grid">
+              @if (submission.church?.name) {
+                <div>
+                  <dt>Church</dt>
+                  <dd>{{ submission.church?.name }}</dd>
+                </div>
+              }
+              @if (submission.category) {
+                <div>
+                  <dt>Category</dt>
+                  <dd>{{ submission.category }}</dd>
+                </div>
+              }
+              @if (submission.submittedAt) {
+                <div>
+                  <dt>Submitted</dt>
+                  <dd>{{ submission.submittedAt | date: 'mediumDate' }}</dd>
+                </div>
+              }
+              <div>
+                <dt>Images</dt>
+                <dd>{{ submission.images?.length ?? 0 }}</dd>
+              </div>
+            </dl>
+
+            @if (submission.moderatorNotes) {
+              <div class="moderator-notes">
+                <p class="notes-label">Moderator notes</p>
+                <p>{{ submission.moderatorNotes }}</p>
+              </div>
+            }
+          </div>
+        </div>
+
+        @if ((submission.reviews?.length ?? 0) > 0) {
+          <section class="review-history" [attr.aria-labelledby]="'history-' + submission.id">
+            <h3 [id]="'history-' + submission.id">Review history</h3>
+            <ol>
+              @for (review of submission.reviews; track review.id) {
+                <li>
+                  <div class="review-heading">
+                    <span class="review-action">{{ actionLabel(review.action) }}</span>
+                    <time [attr.datetime]="review.createdAt">{{ review.createdAt | date: 'medium' }}</time>
+                  </div>
+                  @if (review.notes) {
+                    <p class="review-notes">{{ review.notes }}</p>
+                  }
+                  @if (review.reviewerDisplayName) {
+                    <p class="reviewer">by {{ review.reviewerDisplayName }}</p>
+                  }
+                </li>
+              }
+            </ol>
+          </section>
+        }
+
+        <mat-card-actions class="submission-actions">
+          @if (isEditable(submission)) {
+            <button mat-stroked-button type="button" (click)="startEdit(submission)">
+              <mat-icon aria-hidden="true">edit</mat-icon>
+              Edit details
+            </button>
+          }
+          @if (canRequestCorrection(submission)) {
+            <button mat-stroked-button type="button" (click)="startRequest(submission, 'correction')">
+              Request correction
+            </button>
+          }
+          @if (canRequestRemoval(submission)) {
+            <button mat-button type="button" class="danger-action" (click)="startRequest(submission, 'removal')">
+              Request removal
+            </button>
+          }
+        </mat-card-actions>
+
+        @if (editingId === submission.id) {
+          <mat-card-content class="edit-panel">
+            <h3>Edit submission details</h3>
+            <form [formGroup]="editForm" (ngSubmit)="saveEdit(submission)" novalidate>
+              <div class="form-grid">
+                <mat-form-field appearance="outline" class="span-2">
+                  <mat-label>Title</mat-label>
+                  <input matInput formControlName="title" maxlength="240" required />
+                  @if (editForm.get('title')?.touched && editForm.get('title')?.invalid) {
+                    <mat-error>Please provide a title.</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Category</mat-label>
+                  <input matInput formControlName="category" maxlength="80" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Date photographed</mat-label>
+                  <input matInput type="date" formControlName="captureDate" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Artwork date from</mat-label>
+                  <input matInput type="date" formControlName="artworkDateStart" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Artwork date to</mat-label>
+                  <input matInput type="date" formControlName="artworkDateEnd" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="span-2">
+                  <mat-label>Description</mat-label>
+                  <textarea matInput rows="3" formControlName="description" maxlength="4000"></textarea>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="span-2">
+                  <mat-label>Historical notes</mat-label>
+                  <textarea matInput rows="3" formControlName="historicalNotes" maxlength="4000"></textarea>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Attribution</mat-label>
+                  <mat-select formControlName="attributionPreference">
+                    @for (option of attributionOptions; track option.value) {
+                      <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Display name</mat-label>
+                  <input matInput formControlName="contributorDisplayName" maxlength="120" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="span-2">
+                  <mat-label>Contact email (private)</mat-label>
+                  <input matInput type="email" formControlName="contactEmail" maxlength="320" />
+                  @if (editForm.get('contactEmail')?.touched && editForm.get('contactEmail')?.invalid) {
+                    <mat-error>Please enter a valid email address.</mat-error>
+                  }
+                </mat-form-field>
+              </div>
+
+              <div class="panel-actions">
+                <button mat-flat-button color="primary" type="submit" [disabled]="saving">
+                  {{ saving ? 'Saving…' : 'Save changes' }}
+                </button>
+                <button mat-button type="button" (click)="cancelEdit()" [disabled]="saving">Cancel</button>
+              </div>
+            </form>
+          </mat-card-content>
+        }
+
+        @if (requestTarget?.id === submission.id) {
+          <mat-card-content class="request-panel">
+            <h3>
+              {{ requestTarget?.type === 'removal' ? 'Request removal' : 'Request a correction' }}
+            </h3>
+            <p>
+              @if (requestTarget?.type === 'removal') {
+                This asks the archive team to remove the record from the public archive.
+              } @else {
+                Describe what should be corrected and the archive team will review it.
+              }
+            </p>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Notes for the archive team</mat-label>
+              <textarea matInput rows="3" [formControl]="requestNotes" maxlength="4000"></textarea>
+            </mat-form-field>
+            <div class="panel-actions">
+              <button
+                mat-flat-button
+                [color]="requestTarget?.type === 'removal' ? 'warn' : 'primary'"
+                type="button"
+                (click)="submitRequest()"
+                [disabled]="requesting"
+              >
+                {{ requesting ? 'Sending…' : 'Send request' }}
+              </button>
+              <button mat-button type="button" (click)="cancelRequest()" [disabled]="requesting">Cancel</button>
+            </div>
+          </mat-card-content>
+        }
+      </mat-card>
+    }
+  </div>
+</section>

@@ -9,7 +9,9 @@
       </p>
     </header>
 
-    <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="contribute-form">
+    <mat-tab-group class="contribute-tabs" animationDuration="200ms">
+      <mat-tab label="New submission">
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="contribute-form">
       <section class="form-section">
         <header class="section-header">
           <h2>Photos</h2>
@@ -291,6 +293,14 @@
           {{ uploading ? 'Submitting...' : 'Submit contribution' }}
         </button>
       </div>
-    </form>
+        </form>
+      </mat-tab>
+
+      <mat-tab label="My submissions">
+        <div class="submissions-tab">
+          <app-account></app-account>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
   </div>
 </section>

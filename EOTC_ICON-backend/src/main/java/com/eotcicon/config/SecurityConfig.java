@@ -38,7 +38,7 @@ public class SecurityConfig {
 		http
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.csrf(csrf -> csrf
-				.ignoringRequestMatchers("/h2-console/**", "/api/v1/contributions/**", "/api/v1/auth/**")
+				.ignoringRequestMatchers("/h2-console/**", "/api/v1/contributions/**", "/api/v1/account/**", "/api/v1/auth/**")
 			)
 			.headers(headers -> headers
 				.frameOptions(frame -> frame.sameOrigin())

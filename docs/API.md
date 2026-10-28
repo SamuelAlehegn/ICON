@@ -110,6 +110,10 @@ Only `APPROVED` icons are returned; anything else is a `404`.
 | Method | Path | Description | Access |
 |--------|------|-------------|--------|
 | GET | `/api/v1/account/submissions` | The caller's own submissions with status and review history. | Contributor |
+| GET | `/api/v1/account/submissions/{id}` | One of the caller's own submissions. | Contributor |
+| PATCH | `/api/v1/account/submissions/{id}` | Update permitted fields on an own pending submission. `PUT` is accepted too. | Contributor |
+| POST | `/api/v1/account/submissions/{id}/request-correction` | Ask the archive team to correct the submission (sets `NEEDS_CORRECTION`). | Contributor |
+| POST | `/api/v1/account/submissions/{id}/request-removal` | Ask for the submission to be removed (archives it and records a `WITHDRAW` review). | Contributor |
 
 ## Admin
 
@@ -247,9 +251,19 @@ the limit returns `429 Too Many Requests`.
 
 ## Account
 
-| Method | Path                      | Description                                  |
-|--------|---------------------------|----------------------------------------------|
-| GET    | `/account/submissions`    | The caller's own submissions and their status |
+| Method | Path                                            | Description                                  |
+|--------|-------------------------------------------------|----------------------------------------------|
+| GET    | `/account/submissions`                          | The caller's own submissions and their status |
+| GET    | `/account/submissions/{id}`                     | One of the caller's own submissions           |
+| PATCH  | `/account/submissions/{id}`                     | Update permitted fields                       |
+| POST   | `/account/submissions/{id}/request-correction`  | Request a correction                          |
+| POST   | `/account/submissions/{id}/request-removal`     | Request removal                               |
+
+Editable fields are `title`, `description`, `historicalNotes`, `category`,
+`captureDate`, `artworkDateStart`, `artworkDateEnd`, `attributionPreference`,
+`contributorDisplayName` and `contactEmail`. A submission can only be edited
+while it is `PENDING` or `NEEDS_CORRECTION`; after that, use a correction or
+removal request. Both request endpoints accept an optional body with `notes`.
 
 ## Auth
 
