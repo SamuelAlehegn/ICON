@@ -1,7 +1,7 @@
 import { Component, AfterViewInit, ElementRef, OnDestroy, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
+import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import * as L from 'leaflet';
 import { ChurchService } from '../../services/church.service';
@@ -20,6 +20,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   @ViewChild('mapContainer') private mapContainer?: ElementRef<HTMLDivElement>;
   private map?: L.Map;
   private markersLayer?: L.LayerGroup;
+
+  churchesWithCoords: ChurchSummary[] = [];
+  churchesWithoutCoords: ChurchSummary[] = [];
+  allChurches: ChurchSummary[] = [];
+  loading = true;
+  error = false;
 
   ngAfterViewInit(): void {
     this.initMap();
@@ -42,12 +48,22 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private loadChurchMarkers(): void {
+    this.loading = true;
+    this.error = false;
     // Try to load all churches - use a reasonably large page size
     this.churchService.getChurches({ page: 0, size: 1000 }).pipe(
-      catchError(() => of({ content: [] as ChurchSummary[] } as any))
+      catchError(() => {
+        this.error = true;
+        this.loading = false;
+        return of({ content: [] as ChurchSummary[] } as any);
+      })
     ).subscribe((result: any) => {
-      const churches = result?.content || [];
+      const churches: ChurchSummary[] = result?.content || [];
+      this.allChurches = churches;
+      this.churchesWithCoords = churches.filter(c => c.latitude != null && c.longitude != null);
+      this.churchesWithoutCoords = churches.filter(c => c.latitude == null || c.longitude == null);
       this.renderMarkers(churches);
+      this.loading = false;
     });
   }
 

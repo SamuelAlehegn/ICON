@@ -8,6 +8,77 @@
       </div>
     </header>
 
-    <div #mapContainer class="church-map" role="region" aria-label="Interactive map of churches"></div>
+    <section class="map-section" aria-labelledby="map-region-heading">
+      <h2 id="map-region-heading" class="visually-hidden">Map view</h2>
+      <div #mapContainer class="church-map" role="region" aria-label="Interactive map of churches with location markers"></div>
+    </section>
+
+    <section class="church-list-section" aria-labelledby="church-list-heading">
+      <header class="list-header">
+        <h2 id="church-list-heading">Churches list (accessible alternative)</h2>
+        <p>
+          Showing {{ churchesWithCoords.length }} church(es) with coordinates on the map and
+          {{ churchesWithoutCoords.length }} church(es) without coordinates.
+        </p>
+      </header>
+
+      @if (loading) {
+        <p role="status" aria-live="polite">Loading churches…</p>
+      } @else if (error) {
+        <div role="alert">
+          <p>Unable to load churches.</p>
+        </div>
+      } @else {
+        <div class="table-wrapper" role="region" aria-labelledby="church-list-heading" tabindex="0">
+          <table class="church-table" aria-label="List of churches with location details">
+            <caption class="visually-hidden">
+              Churches with their location and links to their detail pages. Only those with coordinates appear as map markers.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Town</th>
+                <th scope="col">Region</th>
+                <th scope="col">Country</th>
+                <th scope="col">Coordinates</th>
+                <th scope="col">On map</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (church of allChurches; track church.id) {
+                <tr>
+                  <th scope="row">{{ church.name }}</th>
+                  <td>{{ church.town || '—' }}</td>
+                  <td>{{ church.region || '—' }}</td>
+                  <td>{{ church.country || '—' }}</td>
+                  <td>
+                    @if (church.latitude != null && church.longitude != null) {
+                      {{ church.latitude }}, {{ church.longitude }}
+                    } @else {
+                      <span aria-label="No coordinates available">—</span>
+                    }
+                  </td>
+                  <td>
+                    @if (church.latitude != null && church.longitude != null) {
+                      <span aria-label="Has coordinates">Yes</span>
+                    } @else {
+                      <span aria-label="No coordinates">No</span>
+                    }
+                  </td>
+                  <td>
+                    <a [routerLink]="['/churches', church.id]" [attr.aria-label]="'View details for ' + church.name">View church page</a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (allChurches.length === 0) {
+          <p>No churches found.</p>
+        }
+      }
+    </section>
   </div>
 </section>
