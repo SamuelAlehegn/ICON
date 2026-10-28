@@ -1,0 +1,188 @@
+<section class="saints-directory" aria-labelledby="saints-title">
+  <div class="saints-inner">
+    <header class="directory-header">
+      <div>
+        <p class="eyebrow">Directory</p>
+        <h1 id="saints-title">Saints &amp; Figures</h1>
+        <p>Browse the saints and figures venerated in the Ethiopian Orthodox Tewahedo tradition.</p>
+      </div>
+    </header>
+
+    <form class="filters" [formGroup]="filterForm" role="search" aria-label="Search saints">
+      <mat-form-field appearance="outline" class="filter-field filter-search">
+        <mat-label>Search saints</mat-label>
+        <input
+          matInput
+          type="search"
+          formControlName="q"
+          placeholder="Canonical, alternative, Amharic, or Ge'ez name"
+        />
+      </mat-form-field>
+
+      <button mat-stroked-button type="button" class="clear-filters" (click)="clearFilters()">
+        Clear search
+      </button>
+    </form>
+
+    <h2 #resultsHeading class="visually-hidden" tabindex="-1">Saint directory results</h2>
+
+    <p class="visually-hidden" role="status" aria-live="polite">
+      @if (loading && saints.length > 0) {
+        Updating saints…
+      } @else if (!loading && !error && saints.length > 0) {
+        Showing saints {{ pageStart }} to {{ pageEnd }} of {{ totalElements }}.
+      }
+    </p>
+
+    @if (loading && saints.length === 0) {
+      <div class="skeleton-state" role="status" aria-live="polite">
+        <span class="visually-hidden">Loading saints…</span>
+        <div class="skeleton-grid" aria-hidden="true">
+          @for (placeholder of skeletonCards; track placeholder) {
+            <div class="skeleton-card">
+              <div class="skeleton-emblem"></div>
+              <div class="skeleton-body">
+                <span class="skeleton-line skeleton-line-lg"></span>
+                <span class="skeleton-line"></span>
+                <span class="skeleton-line skeleton-line-sm"></span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    } @else if (error) {
+      <div class="state-container state-error" role="alert">
+        <h2>Unable to load saints</h2>
+        <p>We couldn't reach the archive. Please check your connection and try again.</p>
+        <button mat-stroked-button type="button" (click)="retry()">Try again</button>
+      </div>
+    } @else if (saints.length === 0) {
+      <div class="state-container state-empty" role="status">
+        @if (hasActiveFilters) {
+          <h2>No saints match your search</h2>
+          <p>Try a different name or spelling, including Amharic or Ge'ez.</p>
+          <button mat-stroked-button type="button" (click)="clearFilters()">Clear search</button>
+        } @else {
+          <h2>No saints found</h2>
+          <p>The archive doesn't have any saint records yet. Please check back soon.</p>
+          <button mat-stroked-button type="button" (click)="retry()">Refresh</button>
+        }
+      </div>
+    } @else {
+      @if (loading) {
+        <mat-progress-bar mode="indeterminate" aria-label="Loading saints"></mat-progress-bar>
+      }
+
+      <div
+        id="saint-directory-grid"
+        class="card-grid"
+        [class.is-loading]="loading"
+        [attr.aria-busy]="loading ? 'true' : null"
+      >
+        @for (saint of saints; track saint.id) {
+          <mat-card
+            class="saint-card"
+            appearance="outlined"
+            role="article"
+            [attr.aria-labelledby]="'saint-title-' + saint.id"
+          >
+            <div class="card-emblem" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="24" cy="24" r="19" stroke="currentColor" stroke-width="1.2" opacity="0.5" />
+                <path d="M24 11v26M14 24h20" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+                <path d="M18 15h12M18 33h12M16 17v14M32 17v14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity="0.7" />
+                <circle cx="24" cy="24" r="2.6" fill="currentColor" />
+              </svg>
+            </div>
+            <mat-card-content class="card-content">
+              <div class="card-heading">
+                <h2 class="card-title" [id]="'saint-title-' + saint.id">{{ saint.canonicalName }}</h2>
+                @if (saint.verified) {
+                  <span class="verified-badge">Verified</span>
+                } @else {
+                  <span class="unverified-badge">Unverified</span>
+                }
+              </div>
+
+              <dl class="name-grid">
+                <div>
+                  <dt>Amharic</dt>
+                  <dd lang="am">{{ saint.amharicName || '—' }}</dd>
+                </div>
+                <div>
+                  <dt>Ge'ez</dt>
+                  <dd lang="gez">{{ saint.geezName || '—' }}</dd>
+                </div>
+              </dl>
+
+              <div class="card-meta">
+                <div class="meta-row">
+                  <span class="meta-label">Category</span>
+                  <span class="meta-value">{{ getCategory(saint) }}</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Related icons</span>
+                  <span class="meta-value">{{ getIconCount(saint) }}</span>
+                </div>
+              </div>
+            </mat-card-content>
+            <mat-card-actions class="card-actions">
+              <a
+                mat-button
+                [routerLink]="['/saints', saint.id]"
+                [attr.aria-label]="'View the directory entry for ' + saint.canonicalName"
+              >
+                View saint
+              </a>
+            </mat-card-actions>
+          </mat-card>
+        }
+      </div>
+
+      @if (totalPages > 1) {
+        <nav class="pagination" aria-label="Saint directory pagination" aria-controls="saint-directory-grid">
+          <p class="pagination-summary">
+            Showing {{ pageStart }}–{{ pageEnd }} of {{ totalElements }} saints
+          </p>
+
+          <div class="pagination-controls" (keydown)="onPaginationKeydown($event)">
+            <button
+              mat-stroked-button
+              type="button"
+              class="pagination-nav"
+              [disabled]="!hasPrevious || loading"
+              (click)="goToPage(currentPage - 1)"
+            >
+              Previous
+            </button>
+
+            @for (page of visiblePages; track page) {
+              <button
+                mat-button
+                type="button"
+                class="page-button"
+                [class.active]="page === currentPage"
+                [attr.aria-current]="page === currentPage ? 'page' : null"
+                [attr.aria-label]="'Go to page ' + (page + 1) + ' of ' + totalPages"
+                [disabled]="loading"
+                (click)="goToPage(page)"
+              >
+                {{ page + 1 }}
+              </button>
+            }
+
+            <button
+              mat-stroked-button
+              type="button"
+              class="pagination-nav"
+              [disabled]="!hasNext || loading"
+              (click)="goToPage(currentPage + 1)"
+            >
+              Next
+            </button>
+          </div>
+        </nav>
+      }
+    }
+  </div>
+</section>

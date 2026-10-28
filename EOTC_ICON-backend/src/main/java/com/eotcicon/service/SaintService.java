@@ -1,9 +1,10 @@
 package com.eotcicon.service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -43,16 +44,60 @@ public class SaintService {
 	}
 
 	public Page<SaintSummaryDto> getSaints(int page, int size) {
+		return getSaints(page, size, null, null, null);
+	}
+
+	public Page<SaintSummaryDto> getSaints(int page, int size, String q, String category, String sort) {
 		Pageable pageable = PageRequest.of(page, size);
-		List<Saint> saints = saintRepository.findAllByStatus(RecordStatus.ACTIVE);
-		// For public list, return as simple list wrapped in page (no pagination constraints in repo yet)
+		String term = normalize(q);
+		String requestedCategory = normalize(category);
+
+		List<Saint> saints = saintRepository.findAllByStatus(RecordStatus.ACTIVE).stream()
+				.filter(saint -> requestedCategory.isEmpty()
+						|| requestedCategory.equals(normalize(saint.getCategory())))
+				.filter(saint -> term.isEmpty() || matches(saint, term))
+				.sorted(comparatorFor(sort))
+				.toList();
+
 		List<SaintSummaryDto> dtos = saints.stream()
-				.map(s -> SaintMapper.toSummary(s, countIconsForSaint(s)))
-				.collect(Collectors.toList());
+				.map(saint -> SaintMapper.toSummary(saint, countIconsForSaint(saint)))
+				.toList();
 		int start = Math.min((int) pageable.getOffset(), dtos.size());
 		int end = Math.min(start + pageable.getPageSize(), dtos.size());
 		List<SaintSummaryDto> pageContent = dtos.subList(start, end);
 		return new PageImpl<>(pageContent, pageable, dtos.size());
+	}
+
+	private boolean matches(Saint saint, String term) {
+		if (contains(saint.getCanonicalName(), term)
+				|| contains(saint.getAmharicName(), term)
+				|| contains(saint.getGeezName(), term)
+				|| contains(saint.getCategory(), term)) {
+			return true;
+		}
+		return saint.getAliases() != null && saint.getAliases().stream()
+				.map(alias -> alias.getName())
+				.anyMatch(name -> contains(name, term));
+	}
+
+	private boolean contains(String value, String term) {
+		return value != null && normalize(value).contains(term);
+	}
+
+	private String normalize(String value) {
+		return value == null ? "" : value.trim().toLowerCase(Locale.ROOT);
+	}
+
+	private Comparator<Saint> comparatorFor(String sort) {
+		String normalizedSort = normalize(sort);
+		return switch (normalizedSort) {
+			case "newest" -> Comparator.comparing(Saint::getCreatedAt,
+					Comparator.nullsLast(Comparator.naturalOrder())).reversed();
+			case "oldest" -> Comparator.comparing(Saint::getCreatedAt,
+					Comparator.nullsLast(Comparator.naturalOrder()));
+			default -> Comparator.comparing(Saint::getCanonicalName,
+					Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+		};
 	}
 
 	public SaintDetailDto getSaint(String idOrSlug) {

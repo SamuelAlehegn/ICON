@@ -38,6 +38,24 @@ export interface SaintSummary {
   iconCount?: number | null;
 }
 
+export interface SaintDetail {
+  id: string;
+  slug: string;
+  canonicalName: string;
+  amharicName?: string | null;
+  geezName?: string | null;
+  category?: string | null;
+  description?: string | null;
+  verified: boolean;
+  status?: string | null;
+  aliases?: string[] | null;
+  iconCount: number;
+  depictions?: IconSummary[] | null;
+  churches?: ChurchSummary[] | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
 export interface ImageRights {
   rightsHolder?: string | null;
   licenseType?: string | null;

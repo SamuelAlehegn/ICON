@@ -1,0 +1,398 @@
+:host {
+  display: block;
+}
+
+.saints-directory {
+  padding: clamp(2.5rem, 6vw, 4rem) clamp(1rem, 4vw, 2.5rem) clamp(3rem, 7vw, 5rem);
+}
+
+.saints-inner {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.75rem, 4vw, 2.5rem);
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.directory-header > div {
+  max-width: 62ch;
+}
+
+.directory-header h1 {
+  margin: 0.5rem 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.directory-header p:not(.eyebrow) {
+  color: var(--color-text-secondary);
+}
+
+.eyebrow {
+  color: var(--color-gold);
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem 1rem;
+  align-items: start;
+}
+
+.filter-field {
+  width: 100%;
+}
+
+.clear-filters {
+  align-self: center;
+  justify-self: flex-start;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 260px;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  color: var(--color-text-secondary);
+  text-align: center;
+  background: var(--color-surface);
+  border: 1px dashed var(--color-line-gold);
+  border-radius: var(--radius-lg);
+}
+
+.state-container h2 {
+  color: var(--color-burgundy);
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+}
+
+.state-container p {
+  max-width: 46ch;
+}
+
+.state-error {
+  border-color: rgba(110, 31, 42, 0.4);
+}
+
+.state-empty {
+  border-color: var(--color-line);
+}
+
+.skeleton-state {
+  width: 100%;
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  width: 100%;
+}
+
+.skeleton-card {
+  padding: 1.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.skeleton-emblem {
+  width: 3.5rem;
+  height: 3.5rem;
+  margin-bottom: 1.25rem;
+  border-radius: 50%;
+}
+
+.skeleton-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeleton-emblem,
+.skeleton-line {
+  background: linear-gradient(
+    100deg,
+    rgba(110, 31, 42, 0.06) 30%,
+    rgba(176, 141, 79, 0.18) 50%,
+    rgba(110, 31, 42, 0.06) 70%
+  );
+  background-size: 220% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-line {
+  width: 100%;
+  height: 0.8rem;
+  border-radius: 999px;
+}
+
+.skeleton-line-lg {
+  width: 70%;
+  height: 1.15rem;
+}
+
+.skeleton-line-sm {
+  width: 45%;
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+  transition: opacity 0.2s ease;
+}
+
+.card-grid.is-loading {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.saint-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.saint-card:hover,
+.saint-card:focus-within {
+  border-color: var(--color-line-gold);
+  box-shadow: 0 22px 55px rgba(75, 20, 28, 0.12);
+  transform: translateY(-2px);
+}
+
+.card-emblem {
+  display: grid;
+  place-items: center;
+  width: 4.5rem;
+  height: 4.5rem;
+  margin: 1.5rem 1.5rem 0;
+  color: var(--color-gold-deep);
+  background:
+    radial-gradient(circle at 50% 45%, rgba(176, 141, 79, 0.22), transparent 70%),
+    var(--color-ivory-deep);
+  border: 1px solid var(--color-line-gold);
+  border-radius: 50%;
+}
+
+.card-emblem svg {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem 1.25rem 0;
+}
+
+.card-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.card-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  line-height: 1.2;
+}
+
+.verified-badge,
+.unverified-badge {
+  padding: 0.2rem 0.6rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 999px;
+}
+
+.verified-badge {
+  color: #245c3a;
+  background: rgba(47, 107, 67, 0.12);
+  border: 1px solid rgba(47, 107, 67, 0.28);
+}
+
+.unverified-badge {
+  color: var(--color-text-secondary);
+  background: rgba(110, 31, 42, 0.06);
+  border: 1px solid var(--color-line);
+}
+
+.name-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.name-grid div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.name-grid dt,
+.meta-label {
+  color: var(--color-text-secondary);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.name-grid dd {
+  margin: 0;
+  font-family: var(--font-ethiopic);
+  font-size: 1.05rem;
+}
+
+.card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.meta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.meta-value {
+  font-size: 0.95rem;
+}
+
+.card-actions {
+  margin-top: auto;
+  padding: 0.75rem 1.25rem 1.25rem;
+}
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem clamp(1rem, 3vw, 2rem);
+  margin-top: 0.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-line);
+}
+
+.pagination-summary {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.pagination-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pagination-nav {
+  margin: 0 0.25rem;
+}
+
+.page-button {
+  min-width: 2.5rem;
+  color: var(--color-text-secondary);
+}
+
+.page-button.active {
+  color: var(--color-burgundy);
+  font-weight: 700;
+  background: rgba(176, 141, 79, 0.18);
+}
+
+@media (max-width: 640px) {
+  .saints-directory {
+    padding: 2.25rem 1rem 3rem;
+  }
+
+  .saints-inner {
+    gap: 1.5rem;
+  }
+
+  .filters {
+    grid-template-columns: 1fr;
+  }
+
+  .clear-filters {
+    justify-self: stretch;
+  }
+
+  .card-grid,
+  .skeleton-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-actions a {
+    width: 100%;
+  }
+
+  .pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pagination-summary {
+    text-align: center;
+  }
+
+  .pagination-controls {
+    justify-content: center;
+  }
+
+  .pagination-nav {
+    flex: 1 1 auto;
+  }
+
+  .page-button {
+    min-width: 2.25rem;
+  }
+
+  .state-container {
+    min-height: 220px;
+  }
+}
