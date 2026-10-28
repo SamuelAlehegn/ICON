@@ -2,7 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { IconDetail, IconSummary, PageResponse } from '../models/icon.model';
+import { IconDetail, IconSummary } from '../models/icon.model';
+import { PageResponse } from '../models/page-response.model';
 
 @Injectable({
   providedIn: 'root'

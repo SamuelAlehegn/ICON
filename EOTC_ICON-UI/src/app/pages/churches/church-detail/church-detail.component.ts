@@ -4,8 +4,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { ChurchService } from '../../services/church.service';
-import { ChurchDetail } from '../../models/icon.model';
+import { ChurchService } from '../../../services/church.service';
+import { ChurchDetail } from '../../../models/church.model';
 
 @Component({
   selector: 'app-church-detail',

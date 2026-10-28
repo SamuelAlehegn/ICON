@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
-import { ContributionService, ContributionStatusResponse } from '../../services/contribution.service';
+import { ContributionService, ContributionStatusResponse } from '../../../services/contribution.service';
 
 @Component({
   selector: 'app-contribute-success',
