@@ -1,0 +1,183 @@
+<section class="saint-detail" aria-labelledby="saint-title">
+  <div class="detail-inner">
+    @if (loading) {
+      <div class="loading-state" role="status" aria-live="polite">
+        <span class="visually-hidden">Loading saint details…</span>
+        <mat-progress-bar mode="indeterminate" aria-label="Loading saint details"></mat-progress-bar>
+        <div class="skeleton-layout" aria-hidden="true">
+          <div class="skeleton-emblem"></div>
+          <div class="skeleton-body">
+            <span class="skeleton-line skeleton-line-sm"></span>
+            <span class="skeleton-line skeleton-line-lg"></span>
+            <span class="skeleton-line"></span>
+            <span class="skeleton-line skeleton-line-md"></span>
+          </div>
+        </div>
+      </div>
+    } @else if (notFound) {
+      <div class="state-container" role="alert">
+        <p class="eyebrow">Not found</p>
+        <h1>This saint isn't in the archive</h1>
+        <p>The record may have been removed or the link may be incorrect.</p>
+        <a mat-flat-button class="button button-primary" routerLink="/saints">Back to the directory</a>
+      </div>
+    } @else if (error) {
+      <div class="state-container state-error" role="alert">
+        <p class="eyebrow">Something went wrong</p>
+        <h1>Unable to load this saint</h1>
+        <p>We couldn't reach the archive. Please check your connection and try again.</p>
+        <button mat-stroked-button type="button" (click)="retry()">Try again</button>
+      </div>
+    } @else {
+      @if (saint; as saint) {
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+          <a routerLink="/saints">Saints &amp; figures</a>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">{{ saint.canonicalName }}</span>
+        </nav>
+
+        <article class="detail-card">
+          <header class="saint-hero">
+            <div class="hero-emblem" aria-hidden="true">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="32" cy="32" r="25" stroke="currentColor" stroke-width="1.3" opacity="0.5" />
+                <path d="M32 15v34M19 32h26" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" />
+                <path d="M24 20h16M24 44h16M21 23v18M43 23v18" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity="0.7" />
+                <circle cx="32" cy="32" r="3.4" fill="currentColor" />
+              </svg>
+            </div>
+
+            <div class="hero-copy">
+              <p class="eyebrow">Saint directory</p>
+              <h1 id="saint-title">{{ saint.canonicalName }}</h1>
+              <div class="hero-meta">
+                <span class="category">{{ category }}</span>
+                @if (saint.verified) {
+                  <span class="verified-badge">Verified record</span>
+                } @else {
+                  <span class="unverified-badge">Unverified record</span>
+                }
+                <span class="relation-count">{{ relationCountLabel }}</span>
+              </div>
+            </div>
+          </header>
+
+          <div class="detail-body">
+            <section class="detail-section" aria-labelledby="names-heading">
+              <h2 id="names-heading" class="section-label">Names</h2>
+
+              <dl class="name-grid">
+                <div>
+                  <dt>Canonical name</dt>
+                  <dd>{{ saint.canonicalName }}</dd>
+                </div>
+                <div>
+                  <dt>Amharic</dt>
+                  <dd lang="am">{{ saint.amharicName || '—' }}</dd>
+                </div>
+                <div>
+                  <dt>Ge'ez</dt>
+                  <dd lang="gez">{{ saint.geezName || '—' }}</dd>
+                </div>
+              </dl>
+
+              @if (alternativeNames.length > 0) {
+                <div class="alternative-names">
+                  <span class="field-label">Alternative names</span>
+                  <ul>
+                    @for (name of alternativeNames; track name) {
+                      <li>{{ name }}</li>
+                    }
+                  </ul>
+                </div>
+              }
+            </section>
+
+            <section class="detail-section" aria-labelledby="category-heading">
+              <h2 id="category-heading" class="section-label">Category</h2>
+              <p class="category-value">{{ category }}</p>
+            </section>
+
+            @if (verifiedDescription) {
+              <section class="detail-section" aria-labelledby="description-heading">
+                <h2 id="description-heading" class="section-label">About this saint</h2>
+                <p class="prose">{{ verifiedDescription }}</p>
+              </section>
+            } @else if (!saint.verified) {
+              <section class="detail-section verified-notice" aria-labelledby="description-heading">
+                <h2 id="description-heading" class="section-label">About this saint</h2>
+                <p class="prose">
+                  This record has not yet been verified. Its description is withheld until the archive
+                  team confirms the details.
+                </p>
+              </section>
+            } @else {
+              <section class="detail-section" aria-labelledby="description-heading">
+                <h2 id="description-heading" class="section-label">About this saint</h2>
+                <p class="prose muted">No verified description has been recorded yet.</p>
+              </section>
+            }
+
+            <section class="detail-section" aria-labelledby="icons-heading">
+              <div class="section-heading">
+                <h2 id="icons-heading" class="section-label">Related icons</h2>
+                <span class="section-count">{{ depictions.length }}</span>
+              </div>
+
+              @if (depictions.length > 0) {
+                <div class="related-grid">
+                  @for (icon of depictions; track icon.id) {
+                    <a class="related-card" [routerLink]="['/icons', icon.id]">
+                      <div class="related-image">
+                        @if (icon.thumbnailUrl || icon.imageUrl) {
+                          <img
+                            [appLazyImage]="icon.thumbnailUrl || icon.imageUrl"
+                            [alt]="getImageAlt(icon)"
+                            loading="lazy"
+                          />
+                        } @else {
+                          <div class="image-placeholder">
+                            <span>No image available</span>
+                          </div>
+                        }
+                      </div>
+                      <div class="related-copy">
+                        <h3>{{ getDisplayName(icon) }}</h3>
+                        <p>{{ icon.churchName || 'Church not recorded' }}</p>
+                        <p class="muted">{{ getIconLocation(icon) }}</p>
+                      </div>
+                    </a>
+                  }
+                </div>
+              } @else {
+                <p class="empty-note">No published icons depict this saint yet.</p>
+              }
+            </section>
+
+            <section class="detail-section" aria-labelledby="churches-heading">
+              <div class="section-heading">
+                <h2 id="churches-heading" class="section-label">Related churches</h2>
+                <span class="section-count">{{ churches.length }}</span>
+              </div>
+
+              @if (churches.length > 0) {
+                <ul class="church-list">
+                  @for (church of churches; track church.id) {
+                    <li class="church-card">
+                      <h3>{{ church.name }}</h3>
+                      <p>{{ getChurchLocation(church) }}</p>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="empty-note">No churches are linked to this saint yet.</p>
+              }
+            </section>
+
+            <a mat-stroked-button class="back-link" routerLink="/saints">Back to the directory</a>
+          </div>
+        </article>
+      }
+    }
+  </div>
+</section>
