@@ -1,0 +1,107 @@
+<div class="login-page">
+  <div class="login-shell">
+    <aside class="login-aside">
+      <a class="brand" routerLink="/" aria-label="EOTC Icon Archive — home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="16" stroke="currentColor" stroke-width="1" opacity="0.55" />
+            <path d="M20 6v28M6 20h28" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+            <path d="M13 11h14M13 29h14M11 13v14M29 13v14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.75" />
+            <circle cx="20" cy="20" r="3.2" fill="currentColor" />
+          </svg>
+        </span>
+        <span class="brand-text">
+          <span class="brand-name">EOTC Icon Archive</span>
+          <span class="brand-tagline">Sacred Icons of Ethiopia</span>
+        </span>
+      </a>
+
+      <div class="aside-copy">
+        <p class="eyebrow">Archive team</p>
+        <h1>Care for the collection, one record at a time.</h1>
+        <p>
+          Sign in to review contributed icons, keep church and saint records accurate, and help
+          preserve Ethiopia's sacred art for future generations.
+        </p>
+        <ul>
+          <li>Review and approve submissions</li>
+          <li>Manage churches, saints, and icons</li>
+          <li>Follow the moderation trail</li>
+        </ul>
+      </div>
+
+      <p class="aside-footnote">
+        Contributing is open to everyone — no account is needed to submit an icon.
+      </p>
+    </aside>
+
+    <main class="login-main">
+      <p class="eyebrow">Welcome back</p>
+      <h2>Sign in</h2>
+      <p class="intro">Use the email and password for your archive account.</p>
+
+      @if (error) {
+        <div class="error-box" role="alert">
+          <mat-icon aria-hidden="true">error_outline</mat-icon>
+          <span>{{ error }}</span>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            autocomplete="email"
+            inputmode="email"
+            placeholder="you@example.org"
+          />
+          @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+            <mat-error>Email is required.</mat-error>
+          } @else if (form.controls.email.touched && form.controls.email.hasError('email')) {
+            <mat-error>Enter a valid email address.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            [type]="hidePassword ? 'password' : 'text'"
+            formControlName="password"
+            autocomplete="current-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            [attr.aria-label]="hidePassword ? 'Show password' : 'Hide password'"
+            (click)="togglePasswordVisibility()"
+          >
+            <mat-icon aria-hidden="true">{{ hidePassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+          @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+            <mat-error>Password is required.</mat-error>
+          } @else if (form.controls.password.touched && form.controls.password.hasError('minlength')) {
+            <mat-error>Password must be at least 8 characters.</mat-error>
+          }
+        </mat-form-field>
+
+        <button mat-flat-button class="submit" type="submit" [disabled]="submitting">
+          {{ submitting ? 'Signing in…' : 'Sign in' }}
+        </button>
+      </form>
+
+      <p class="auth-switch">
+        New to the archive? <a routerLink="/register">Create an account</a>
+      </p>
+
+      <a class="back-link" routerLink="/">
+        <mat-icon aria-hidden="true">arrow_back</mat-icon>
+        Back to the archive
+      </a>
+    </main>
+  </div>
+</div>

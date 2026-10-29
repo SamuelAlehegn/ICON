@@ -119,6 +119,14 @@
   color: var(--color-burgundy);
 }
 
+.nav-link-button {
+  appearance: none;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
 .nav-link.active::after {
   position: absolute;
   bottom: 0.18rem;
@@ -156,6 +164,7 @@
   background: var(--color-burgundy);
   border-color: var(--color-burgundy);
 }
+
 
 .menu-toggle {
   display: none;
