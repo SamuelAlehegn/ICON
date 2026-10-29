@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.ServletWebRequest;
-import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.eotcicon.web.dto.common.ApiError;
 import com.eotcicon.web.dto.common.FieldErrorDto;
@@ -20,6 +21,16 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+	private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+	@ExceptionHandler(ResponseStatusException.class)
+	public ResponseEntity<ApiError> handleStatus(ResponseStatusException ex, HttpServletRequest request) {
+		HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+		String message = status.is4xxClientError() ? ex.getReason() : "An unexpected error occurred";
+		ApiError error = ApiError.of(status.value(), status.getReasonPhrase(), message, request.getRequestURI());
+		return ResponseEntity.status(status).body(error);
+	}
 
 	@ExceptionHandler(ResourceNotFoundException.class)
 	public ResponseEntity<ApiError> handleNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
@@ -30,7 +41,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(AccessDeniedException.class)
 	public ResponseEntity<ApiError> handleAccessDenied(AccessDeniedException ex, HttpServletRequest request) {
-		ApiError error = ApiError.of(HttpStatus.FORBIDDEN.value(), "Forbidden", ex.getMessage(),
+		ApiError error = ApiError.of(HttpStatus.FORBIDDEN.value(), "Forbidden", "You are not allowed to perform this action",
 				request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
 	}
@@ -62,6 +73,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiError> handleGeneric(Exception ex, HttpServletRequest request) {
+		log.error("Unhandled request failure for {} {}", request.getMethod(), request.getRequestURI(), ex);
 		ApiError error = ApiError.of(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal Server Error",
 				"An unexpected error occurred", request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);

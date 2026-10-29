@@ -13,6 +13,7 @@ public class S3StorageService implements StorageService {
 
 	@Override
 	public StoredFile store(MultipartFile file, String objectKey) throws IOException {
+		StorageService.validateObjectKey(objectKey);
 		// For local development without S3 credentials, we fall back to treating as stored
 		String contentType = StringUtils.hasText(file.getContentType()) ? file.getContentType() : "application/octet-stream";
 		return new StoredFile(objectKey, file.getSize(), contentType);

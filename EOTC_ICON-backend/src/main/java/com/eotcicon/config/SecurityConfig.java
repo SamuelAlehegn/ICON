@@ -37,9 +37,8 @@ public class SecurityConfig {
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-			.csrf(csrf -> csrf
-				.ignoringRequestMatchers("/h2-console/**", "/api/v1/contributions/**", "/api/v1/account/**", "/api/v1/auth/**")
-			)
+			// Authentication uses bearer tokens and does not authenticate from cookies.
+			.csrf(csrf -> csrf.disable())
 			.headers(headers -> headers
 				.frameOptions(frame -> frame.sameOrigin())
 			)
@@ -82,8 +81,8 @@ public class SecurityConfig {
 			.toList();
 		configuration.setAllowedOrigins(origins);
 		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-		configuration.setAllowedHeaders(List.of("*"));
-		configuration.setAllowCredentials(true);
+		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "Origin"));
+		configuration.setAllowCredentials(false);
 		configuration.setMaxAge(3600L);
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
@@ -92,7 +91,7 @@ public class SecurityConfig {
 
 	@Bean
 	org.springframework.security.crypto.password.PasswordEncoder passwordEncoder() {
-		return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+		return new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder(12);
 	}
 
 }

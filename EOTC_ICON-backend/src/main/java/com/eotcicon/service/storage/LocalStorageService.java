@@ -25,14 +25,19 @@ public class LocalStorageService implements StorageService {
 
 	@Override
 	public StoredFile store(MultipartFile file, String objectKey) throws IOException {
-		if (objectKey == null || objectKey.isBlank()) {
-			throw new IllegalArgumentException("objectKey must not be blank");
-		}
+		StorageService.validateObjectKey(objectKey);
+		Files.createDirectories(root);
+		Path realRoot = root.toRealPath();
 		Path target = root.resolve(objectKey).normalize();
-		if (!target.startsWith(root)) {
+		if (!target.startsWith(root) || target.equals(root)) {
 			throw new IllegalArgumentException("Invalid storage key");
 		}
 		Files.createDirectories(target.getParent());
+		Path realParent = target.getParent().toRealPath();
+		if (!realParent.startsWith(realRoot)) {
+			throw new IllegalArgumentException("Invalid storage key");
+		}
+		target = realParent.resolve(target.getFileName()).normalize();
 		try (InputStream in = file.getInputStream()) {
 			Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
 		}
