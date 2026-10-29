@@ -2,9 +2,6 @@ package com.eotcicon.service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,14 +10,19 @@ import org.springframework.web.multipart.MultipartFile;
 public class ImageValidationService {
 
 	private static final long MAX_FILE_SIZE = 15L * 1024L * 1024L;
-	private static final Map<String, byte[]> MAGIC_BYTES = new HashMap<>();
+	private static final int MAX_IMAGE_COUNT = 4;
+	private static final long MAX_TOTAL_SIZE = 60L * 1024L * 1024L;
 
-	static {
-		MAGIC_BYTES.put("image/jpeg", new byte[] { (byte) 0xFF, (byte) 0xD8, (byte) 0xFF });
-		MAGIC_BYTES.put("image/png", new byte[] { (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A });
-		MAGIC_BYTES.put("image/webp", "RIFF".getBytes());
-		MAGIC_BYTES.put("image/tiff", new byte[] { 0x49, 0x49, 0x2A, 0x00 });
-		MAGIC_BYTES.put("image/tiff-big-endian", new byte[] { 0x4D, 0x4D, 0x00, 0x2A });
+	public void validateBatch(java.util.List<MultipartFile> files) {
+		if (files == null || files.isEmpty() || files.size() > MAX_IMAGE_COUNT) {
+			throw new IllegalArgumentException("Submit between one and four images");
+		}
+		long total = 0;
+		for (MultipartFile file : files) {
+			validate(file);
+			total += file.getSize();
+			if (total > MAX_TOTAL_SIZE) throw new IllegalArgumentException("Combined image size must be 60 MB or smaller");
+		}
 	}
 
 	public void validate(MultipartFile file) {
@@ -49,10 +51,10 @@ public class ImageValidationService {
 
 	private void validateMagicBytes(MultipartFile file) throws IOException {
 		String contentType = file.getContentType().toLowerCase();
-		byte[] bytes = new byte[12];
+		byte[] bytes;
 		try (InputStream in = file.getInputStream()) {
-			int read = in.read(bytes);
-			if (read < 3) {
+			bytes = in.readNBytes(12);
+			if (bytes.length < 4) {
 				throw new IllegalArgumentException("Invalid image file");
 			}
 		}
@@ -70,7 +72,8 @@ public class ImageValidationService {
 			return;
 		}
 		if (contentType.equals("image/webp")) {
-			if (!(bytes[0] == 0x52 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x46)) {
+			if (!(bytes.length >= 12 && bytes[0] == 0x52 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x46
+					&& bytes[8] == 0x57 && bytes[9] == 0x45 && bytes[10] == 0x42 && bytes[11] == 0x50)) {
 				throw new IllegalArgumentException("Invalid WebP image file");
 			}
 			return;

@@ -67,9 +67,7 @@ public class ContributionService {
 	}
 
 	public ContributionCreatedDto submitContribution(ContributionRequest request) {
-		if (request.images() == null || request.images().isEmpty()) {
-			throw new IllegalArgumentException("At least one image is required");
-		}
+		imageValidationService.validateBatch(request.images());
 		if (!Boolean.TRUE.equals(request.consent())) {
 			throw new IllegalArgumentException("Consent is required");
 		}
@@ -83,10 +81,6 @@ public class ContributionService {
 		}
 		if (!rateLimitService.allowRequest(rateLimitKey)) {
 			throw new IllegalArgumentException("Too many requests. Please try again later.");
-		}
-
-		for (MultipartFile image : request.images()) {
-			imageValidationService.validate(image);
 		}
 
 		Icon icon = new Icon();
