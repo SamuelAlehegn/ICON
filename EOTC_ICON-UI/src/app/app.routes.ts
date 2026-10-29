@@ -1,7 +1,18 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './guards/auth.guard';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 
 export const routes: Routes = [
+  {
+    path: 'login',
+    title: 'Sign in — EOTC Icon Archive',
+    loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent)
+  },
+  {
+    path: 'register',
+    title: 'Create an account — EOTC Icon Archive',
+    loadComponent: () => import('./pages/register/register.component').then(m => m.RegisterComponent)
+  },
   {
     path: '',
     component: MainLayoutComponent,
@@ -18,7 +29,7 @@ export const routes: Routes = [
       { path: 'churches', loadComponent: () => import('./pages/churches/churches.component').then(m => m.ChurchesComponent) },
       { path: 'churches/:id', loadComponent: () => import('./pages/churches/church-detail/church-detail.component').then(m => m.ChurchDetailComponent) },
       { path: 'map', loadComponent: () => import('./pages/map/map.component').then(m => m.MapComponent) },
-      { path: 'account', loadComponent: () => import('./pages/account/account.component').then(m => m.AccountComponent) }
+      { path: 'account', canActivate: [authGuard], loadComponent: () => import('./pages/account/account.component').then(m => m.AccountComponent) }
     ]
   },
   { path: '**', redirectTo: '' }

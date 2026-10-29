@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 interface NavItem {
   label: string;
@@ -23,6 +24,9 @@ interface NavItem {
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+
   readonly navItems: NavItem[] = [
     { label: 'Home', path: '/' },
     { label: 'Icons', path: '/icons' },
@@ -31,4 +35,10 @@ export class HeaderComponent {
     { label: 'Map', path: '/map' },
     { label: 'Learn Iconography', path: '/learn-iconography' }
   ];
+
+  readonly isAuthenticated = this.auth.isAuthenticated;
+
+  signOut(): void {
+    this.auth.logout().subscribe(() => void this.router.navigateByUrl('/'));
+  }
 }
