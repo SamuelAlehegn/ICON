@@ -30,6 +30,14 @@ public interface IconRepository extends JpaRepository<Icon, UUID> {
 
 	Page<Icon> findByPublicationStatus(PublicationStatus publicationStatus, Pageable pageable);
 
+	@Query("SELECT i FROM Icon i WHERE (:status IS NULL OR i.publicationStatus = :status) "
+			+ "AND (:query IS NULL OR LOWER(i.title) LIKE LOWER(CONCAT('%', :query, '%')) "
+			+ "OR LOWER(i.referenceCode) LIKE LOWER(CONCAT('%', :query, '%')) "
+			+ "OR LOWER(COALESCE(i.description, '')) LIKE LOWER(CONCAT('%', :query, '%'))) "
+			+ "ORDER BY i.createdAt DESC")
+	Page<Icon> searchModerationQueue(@Param("status") PublicationStatus status,
+			@Param("query") String query, Pageable pageable);
+
 	Page<Icon> findByPublicationStatusAndChurch_Id(PublicationStatus publicationStatus, UUID churchId, Pageable pageable);
 
 	Page<Icon> findByPublicationStatusAndCategoryIgnoreCase(PublicationStatus publicationStatus, String category, Pageable pageable);

@@ -4,6 +4,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
 
+import jakarta.annotation.PostConstruct;
+
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -24,6 +26,16 @@ public class JwtTokenProvider {
 
 	@Value("${app.jwt.access-token-expiration-ms:900000}")
 	private long accessTokenExpirationMs;
+
+	@PostConstruct
+	void validateConfiguration() {
+		if (jwtSecret.getBytes(StandardCharsets.UTF_8).length < 32) {
+			throw new IllegalStateException("JWT_SECRET must contain at least 32 UTF-8 bytes");
+		}
+		if (accessTokenExpirationMs <= 0) {
+			throw new IllegalStateException("JWT access token expiration must be positive");
+		}
+	}
 
 	public String generateAccessToken(User user) {
 		Instant now = Instant.now();

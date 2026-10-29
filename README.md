@@ -1,229 +1,167 @@
 # EOTC Sacred Icons Archive
 
-A production-oriented web application for documenting, discovering, and preserving
-**Ethiopian Orthodox Tewahedo Church (EOTC) icons and religious wall paintings**.
+A searchable archive for documenting and preserving Ethiopian Orthodox Tewahedo
+Church icons and religious wall paintings. Public browsing requires no account;
+contributors can submit images for review, and moderators decide whether a
+submission becomes public.
 
-Every record captures *what is depicted*, *where the artwork is located*, and *who
-contributed the photograph* (subject to the contributor's attribution preference).
-The entire published archive is browsable, searchable, and viewable **without any
-login**. Sign-in is only needed for optional features (tracking your own
-submissions) and for moderators.
+## Run locally with H2 (no Docker)
 
-> The archive is inspired by the cataloguing and preservation goals of *Mazgaba
-> Se'elet*, a photographic database of Ethiopian art. This project is independent:
-> it reuses only publicly known information and reproduces no other archive's
-> images, content, or code.
+Requirements: Java 17 and Node.js 22 (for the Angular frontend). The backend's
+default `local` profile uses an in-memory H2 database in PostgreSQL compatibility
+mode and applies the H2 Flyway migrations at startup.
 
----
-
-## Architecture
-
-| Layer     | Technology                                                        |
-|-----------|-------------------------------------------------------------------|
-| Frontend  | Angular 19.2 (standalone components, signals, Angular Material, SCSS) |
-| Backend   | Spring Boot 4.0 (Java 17), Spring Security (JWT), Spring Data JPA |
-| Database  | PostgreSQL 16, schema managed by Flyway migrations                |
-| Storage   | Pluggable: local filesystem (default) or any S3-compatible store (MinIO) |
-| API docs  | springdoc-openapi (Swagger UI)                                    |
-
-```
-Angular SPA ──HTTP──▶ Spring Boot REST API ──JPA──▶ PostgreSQL
-                            │
-                            ├──▶ Local media (./data/media)  OR
-                            └──▶ S3 / MinIO (object storage)
-```
-
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for design details,
-[`docs/API.md`](docs/API.md) for the endpoint reference,
-[`docs/DATABASE.md`](docs/DATABASE.md) for the database schema and ERD, and
-[`docs/LOCAL_DEVELOPMENT.md`](docs/LOCAL_DEVELOPMENT.md) for the two ways to
-run the project locally.
-
----
-
-## Quick start (Docker)
-
-Requires Docker Desktop.
-
-```bash
-cp .env.example .env          # optional — every value has a working default
-docker compose up --build
-```
-
-| Service          | URL                                      |
-|------------------|------------------------------------------|
-| Web app          | http://localhost:8081                    |
-| REST API         | http://localhost:8080/api/v1             |
-| PostgreSQL       | localhost:5432                           |
-| MinIO console    | http://localhost:9001                    |
-
-Flyway creates the schema on the first backend start, against the PostgreSQL
-container.
-
----
-
-## Local development
-
-There are two ways to run the project — pick whichever fits the task.
-
-### Backend
-
-The `local` Spring profile is the **default** (used when no profile is active)
-and runs entirely against **H2 in PostgreSQL-compatibility mode** — no
-PostgreSQL, no Docker required.
+Start the backend from one terminal:
 
 ```bash
 cd EOTC_ICON-backend
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
-The H2 database is in-memory by default and is discarded when the app stops.
-Set `H2_URL` to keep the data between restarts:
+The API is at <http://localhost:8080>. H2 console is at
+<http://localhost:8080/h2-console> (JDBC URL `jdbc:h2:mem:eotcicon`, user
+`eotcicon`, blank password). Data is discarded when the process stops.
 
-```bash
-H2_URL='jdbc:h2:file:./data/eotcicon;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH' \
-  mvn spring-boot:run
-```
-
-To run against a real PostgreSQL instead, activate the `docker` or `prod`
-profile and provide connection details — startup fails fast if
-`DB_URL`/`DB_USERNAME`/`DB_PASSWORD` are missing:
-
-```bash
-cd EOTC_ICON-backend
-SPRING_PROFILES_ACTIVE=docker \
-DB_URL=jdbc:postgresql://localhost:5432/eotc_archive \
-DB_USERNAME=eotc DB_PASSWORD=eotc \
-mvn spring-boot:run
-```
-
-Run tests (uses the `local` H2 profile, so Docker is not required):
-
-```bash
-mvn test
-```
-
-### Database migrations
-
-Flyway owns the schema in every profile; Hibernate runs with
-`spring.jpa.hibernate.ddl-auto=validate` and never creates or alters tables.
-Two migration sets keep local development and production aligned while still
-allowing the databases to differ where they genuinely must:
-
-| Profile | Migration set | Database |
-|---------|---------------|----------|
-| `local` *(default)* | `EOTC_ICON-backend/src/main/resources/db/h2` | H2 — in-memory, or file via `H2_URL` |
-| `docker`, `prod` | `EOTC_ICON-backend/src/main/resources/db/migration` | PostgreSQL |
-
-- Write portable (ANSI) SQL wherever possible and keep the two sets in step:
-  each change uses the same version (`V{n}__description.sql`) and the same
-  shape in both sets.
-- Isolate database-specific SQL (`pg_trgm`, `GIN` indexes, native PostgreSQL
-  types, functions, …) in `db/migration` only, and add a same-version
-  placeholder file to `db/h2` recording why the migration is skipped for H2.
-- Never edit an applied migration — checksums are validated at startup. Add a
-  new `V{n}__*.sql` instead.
-- The core schema lives in `V2__create_core_schema.sql` (both sets, identical
-  body); `V3__enable_trigram_search.sql` adds `pg_trgm`/GIN indexes to the
-  PostgreSQL set only. See [`docs/DATABASE.md`](docs/DATABASE.md) for the ERD
-  and the design rules.
-
-#### Clean local startup
-
-The local database is in-memory, so every start begins from an empty database
-and replays the `db/h2` set from scratch:
-
-```bash
-cd EOTC_ICON-backend
-mvn spring-boot:run          # profile `local` is the default
-```
-
-Flyway creates `flyway_schema_history` and applies the `db/h2` set
-(`V1__baseline.sql` → `V2__create_core_schema.sql` →
-`V3__enable_trigram_search.sql`), then the app is ready on
-http://localhost:8080 (H2 web console at
-`/h2-console`, JDBC URL `jdbc:h2:mem:eotcicon`, user `eotcicon`). To reset
-schema and data, restart the application — nothing is persisted. `mvn test`
-runs the same profile, so no external services are required.
-
-### Frontend
+Start the frontend from another terminal:
 
 ```bash
 cd EOTC_ICON-UI
-npm install
-npm start          # ng serve with proxy to http://localhost:8080
+npm ci
+npm start
 ```
 
-`proxy.conf.json` forwards `/api`, `/media`, and `/actuator` to the backend so the
-SPA can be developed on http://localhost:4200.
+Open <http://localhost:4200>. The Angular development proxy forwards API and
+media requests to the backend. The backend serves uploaded files from
+`./data/media` by default.
+
+To persist H2 data between restarts, set `H2_URL` to a file URL:
 
 ```bash
-npm run build      # production bundle
-npm test           # Karma + Jasmine unit tests (headless Chrome)
+cd EOTC_ICON-backend
+H2_URL='jdbc:h2:file:./data/eotcicon;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH' \
+  ./mvnw spring-boot:run
 ```
 
----
+Run backend tests locally with H2 and no Docker:
 
-## Configuration
+```bash
+cd EOTC_ICON-backend
+./mvnw test
+```
 
-All configuration is environment-variable driven; nothing sensitive is hardcoded.
-See [`.env.example`](.env.example) for the full list and
-[`docs/LOCAL_DEVELOPMENT.md`](docs/LOCAL_DEVELOPMENT.md#environment-variables)
-for the annotated reference.
+## Run with Docker Compose and PostgreSQL
 
-Read by the backend today:
+Docker Compose is intended for local integration and demo use. It runs the SPA,
+Spring API, PostgreSQL 16, and persistent filesystem media storage. The Docker
+profile uses PostgreSQL and the PostgreSQL Flyway migrations; it never falls
+back to H2.
 
-| Variable                    | Purpose                                              |
-|-----------------------------|------------------------------------------------------|
-| `SPRING_PROFILES_ACTIVE`    | `local` (default, H2), `docker` or `prod` (PostgreSQL) |
-| `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` | PostgreSQL connection — required for `docker`/`prod` |
-| `SERVER_PORT`               | HTTP port (default 8080)                            |
-| `H2_URL`                    | JDBC URL for the `local` profile (in-memory by default) |
-| `STORAGE_PROVIDER`          | `local` (default) or `s3`                            |
-| `STORAGE_LOCAL_ROOT`        | Media directory when `local`                         |
-| `S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY` | Object storage |
-| `STORAGE_PUBLIC_BASE_URL`   | Public URL prefix for media in API responses         |
+```bash
+cp .env.example .env
+# Keep the example values for local development, or change them for your own setup.
+docker compose up --build
+```
 
-Reserved for features that are not implemented yet (JWT auth, CORS, bootstrap
-accounts, upload limits, rate limiting): `JWT_SECRET`, `JWT_ACCESS_TTL`,
-`JWT_REFRESH_TTL`, `CORS_ALLOWED_ORIGINS`, `UPLOAD_MAX_BYTES`,
-`RATE_LIMIT_CONTRIBUTE_CAPACITY`, `RATE_LIMIT_CONTRIBUTE_REFILL_MINUTES`,
-`ADMIN_EMAIL`, `ADMIN_PASSWORD`, `MODERATOR_EMAIL`, `MODERATOR_PASSWORD`,
-`SEED_SAMPLE_DATA`.
+| Service | Address | Notes |
+| --- | --- | --- |
+| Website | <http://localhost:8081> | Nginx serves Angular and proxies `/api` and `/media` |
+| API | <http://localhost:8080> | Spring Boot REST API |
+| PostgreSQL | `localhost:5432` | Persistent `postgres-data` volume |
 
-Read by Docker Compose: `FRONTEND_PORT`, `BACKEND_PORT`, `POSTGRES_PORT`,
-`MINIO_API_PORT`, `MINIO_CONSOLE_PORT`, `DB_NAME`, `MINIO_ROOT_USER`,
-`MINIO_ROOT_PASSWORD`, `MINIO_BUCKET`.
+The backend starts after PostgreSQL reports healthy. Uploaded media is stored in
+the persistent `media-data` volume. Useful commands:
 
----
+```bash
+docker compose ps
+docker compose logs -f backend
+docker compose down       # keep the database and media volumes
+docker compose down -v    # delete the database and media volumes
+```
 
-## The public / no-login guarantee
+The Compose file publishes ports on loopback and uses development credentials.
+Do not use its defaults as production credentials or treat this file as a
+production deployment manifest. A deployment needs managed secrets, TLS, a
+backed-up persistent media volume, database backups, and an appropriately
+configured reverse proxy.
 
-The following are reachable with **no authentication**, by design:
+## Environment configuration
 
-- `GET /api/v1/icons/**`, `/saints/**`, `/churches/**`,
-  `/churches/map/markers`, `/stats`, `/categories`, `/regions`
-- `POST /api/v1/contributions` (anonymous contributions allowed)
-- `GET /api/v1/contributions/status/{referenceCode}` (track a submission by code)
-- `GET /media/**` (published images)
+Copy `.env.example` for local Compose overrides. Do not commit `.env`. The
+variables that the application or Compose currently reads are:
 
-Everything under `/api/v1/admin/**` requires the `MODERATOR` or `ADMIN` role, and
-`/api/v1/account/**` requires any authenticated account. The full endpoint
-contract lives in [`docs/API.md`](docs/API.md); the authorization rules live in
-[`SecurityConfig.java`](EOTC_ICON-backend/src/main/java/com/eotcicon/config/SecurityConfig.java).
+| Variable | Used by | Default / requirement | Purpose |
+| --- | --- | --- | --- |
+| `SPRING_PROFILES_ACTIVE` | Backend | `local` when unset | `local` selects H2; `docker` and `prod` select PostgreSQL |
+| `H2_URL` | Backend, `local` | In-memory H2 | Optional H2 JDBC URL; use a file URL to persist local data |
+| `DB_URL` | Backend, `docker` / `prod` | Required | PostgreSQL JDBC URL |
+| `DB_USERNAME` | Backend, `docker` / `prod` | Required | PostgreSQL account |
+| `DB_PASSWORD` | Backend, `docker` / `prod` | Required | PostgreSQL password |
+| `DB_NAME` | Compose | `eotcicon` | Database name used by the PostgreSQL container and backend URL |
+| `JWT_SECRET` | Backend, `docker` / `prod` | Required there; at least 32 UTF-8 bytes | JWT signing key. Local profile has a development-only fallback |
+| `JWT_ACCESS_TOKEN_EXPIRATION_MS` | Backend | `900000` | Access-token lifetime in milliseconds |
+| `CORS_ALLOWED_ORIGINS` | Backend, `docker` / `prod` | Required there | Comma-separated allowed origins; the Compose example allows local development origins |
+| `STORAGE_LOCAL_ROOT` | Backend | `./data/media` locally; required by `prod` | Directory for uploaded media; must be persistent in deployment |
+| `SERVER_PORT` | Backend | `8080` | Backend listen port |
+| `FRONTEND_PORT` | Compose | `8081` | Host port for the website |
+| `BACKEND_PORT` | Compose | `8080` | Host port for direct API access |
+| `POSTGRES_PORT` | Compose | `5432` | Host port for PostgreSQL |
+| `EOTC_PG_IT_URL` | Tests | Unset | Enables optional PostgreSQL migration integration tests |
+| `EOTC_PG_IT_USER` | Tests | `postgres` | PostgreSQL integration-test user |
+| `EOTC_PG_IT_PASSWORD` | Tests | `postgres` | PostgreSQL integration-test password |
 
----
+`docker` and `prod` fail during startup when required database details are
+missing. The `prod` profile also requires `JWT_SECRET`, `CORS_ALLOWED_ORIGINS`,
+and `STORAGE_LOCAL_ROOT`. Generate a secret outside source control and supply it
+through the deployment secret manager. The Compose `.env` values are for local
+development only.
 
-## Contributing
+## Contribution guidelines
 
-Read [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md). In short: never commit secrets,
-run the backend and frontend test suites before opening a pull request, and keep
-public endpoints public.
+- Branch from `main` and keep changes focused.
+- Never commit credentials, tokens, `.env`, generated output, or uploaded media.
+- Add backend schema changes as new Flyway migrations; do not edit migrations
+  that have already been applied. Keep the PostgreSQL and H2 migration sets in
+  sync, with a documented H2 placeholder when a migration is PostgreSQL-only.
+- Add or update tests for changed behavior. Run `./mvnw test` in the backend and
+  the relevant frontend checks before opening a pull request.
+- Keep public DTOs free of private contributor contact details and moderation
+  notes. Public endpoints must expose only approved icon records.
+- Describe behavior changes, configuration changes, and any operational impact
+  in the pull request.
 
-## Licensing & ethics
+## Image rights, attribution, and review
 
-Contributors confirm they hold the rights to the photographs they submit. Rights
-holders may request correction, re-attribution, or removal of any record. Records
-are written to avoid inventing names, dates, or theology; unknown values are shown
-as unknown. See the in-app *Image Rights* and *Privacy* pages for the user-facing
-policy.
+Submit only photographs you took or images for which you have permission to
+submit and display them. A submission does not transfer ownership of the image
+to the archive. Contributors are responsible for identifying applicable
+copyright, privacy, and site-photography restrictions before uploading.
+
+Contributors can request public credit by display name or choose anonymous
+attribution. Contact email is collected for archive communication and is kept
+out of public icon responses. Moderators review submissions before publication;
+pending, rejected, correction-requested, and archived records are not part of
+the public icon gallery or published-icon count. Rights holders may request
+correction, attribution changes, or removal through the archive maintainers.
+Direct media URLs follow the same publication boundary: unpublished images are
+available only to the submission owner and moderators/admins.
+
+Do not guess or invent an artist, subject, date, location, license, or religious
+interpretation. Mark uncertain information as unknown and include only context
+that can be supported by the contributor or a reliable source.
+
+## Public visibility guarantee
+
+Public icon search and detail lookup are constrained to `APPROVED` records in
+`IconService`. Church and saint detail pages also query approved depictions, and
+`StatisticsService` counts published icons using `countByPublicationStatus(APPROVED)`.
+The H2 integration test
+`ContributionModerationPublicJourneyIntegrationTest` exercises search, detail,
+submission, moderator review, publication, and verifies that unapproved and
+rejected records remain hidden from public results and published-icon counts.
+
+## Project documentation
+
+- [`docs/API.md`](docs/API.md) — endpoint reference
+- [`docs/DATABASE.md`](docs/DATABASE.md) — schema and migration conventions
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — design overview
+- [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) — contribution details

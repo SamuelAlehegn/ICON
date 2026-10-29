@@ -37,9 +37,8 @@ public class SecurityConfig {
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-			.csrf(csrf -> csrf
-				.ignoringRequestMatchers("/h2-console/**", "/api/v1/contributions/**", "/api/v1/account/**", "/api/v1/auth/**")
-			)
+			// API authentication is via Authorization bearer tokens, never cookies.
+			.csrf(csrf -> csrf.disable())
 			.headers(headers -> headers
 				.frameOptions(frame -> frame.sameOrigin())
 			)
@@ -64,6 +63,8 @@ public class SecurityConfig {
 					"/api/v1/auth/refresh",
 					"/media/**"
 				).permitAll()
+				.requestMatchers("/api/v1/admin/submissions", "/api/v1/admin/submissions/**")
+					.hasAnyRole("MODERATOR", "ADMIN")
 				.requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
 				.requestMatchers("/api/v1/users/**").hasAnyRole("CONTRIBUTOR", "MODERATOR", "ADMIN")
 				.requestMatchers("/api/v1/mod/**").hasAnyRole("MODERATOR", "ADMIN")
