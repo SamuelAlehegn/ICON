@@ -1,0 +1,173 @@
+<section class="admin-page" aria-labelledby="admin-title">
+  <div class="admin-inner">
+    <header class="page-header">
+      <p class="eyebrow">Moderation</p>
+      <h1 id="admin-title">Submission queue</h1>
+      <p class="page-intro">
+        Review contributed icons, inspect their metadata and images, then approve, reject, or ask the
+        contributor for a correction.
+      </p>
+    </header>
+
+    <form class="queue-controls" [formGroup]="filterForm" role="search" aria-label="Filter submissions">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search submissions</mat-label>
+        <input matInput type="search" formControlName="q" placeholder="Reference code, title, or church" />
+        <mat-icon matPrefix aria-hidden="true">search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="status-field">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          @for (option of statusOptions; track option.value) {
+            <mat-option [value]="option.value">{{ option.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button type="button" class="refresh-button" (click)="retry()" [disabled]="loading">
+        <mat-icon aria-hidden="true">refresh</mat-icon>
+        Refresh
+      </button>
+    </form>
+
+    <p class="visually-hidden" role="status" aria-live="polite">
+      @if (loading && submissions.length > 0) {
+        Updating submissions…
+      } @else if (!loading && !error) {
+        Showing {{ pageStart }} to {{ pageEnd }} of {{ totalElements }} submissions.
+      }
+    </p>
+
+    @if (loading && submissions.length === 0) {
+      <div class="loading-state" role="status" aria-live="polite">
+        <span class="visually-hidden">Loading submissions…</span>
+        <mat-progress-bar mode="indeterminate" aria-label="Loading submissions"></mat-progress-bar>
+      </div>
+    } @else if (error) {
+      <div class="notice notice-error" role="alert">
+        <mat-icon aria-hidden="true">error_outline</mat-icon>
+        <div>
+          <p>{{ error }}</p>
+          <button mat-stroked-button type="button" (click)="retry()">Try again</button>
+        </div>
+      </div>
+    } @else if (submissions.length === 0) {
+      <div class="empty-state" role="status">
+        <mat-icon aria-hidden="true">inbox</mat-icon>
+        <h2>No submissions in this queue</h2>
+        <p>There are no submissions with this status right now.</p>
+      </div>
+    } @else {
+      @if (loading) {
+        <mat-progress-bar mode="indeterminate" aria-label="Updating submissions"></mat-progress-bar>
+      }
+
+      <div class="queue-summary">
+        <span>{{ totalElements }} {{ totalElements === 1 ? 'submission' : 'submissions' }}</span>
+        @if (filterForm.getRawValue().q.trim()) {
+          <span class="filter-note">matching “{{ filterForm.getRawValue().q.trim() }}”</span>
+        }
+      </div>
+
+      <ol
+        class="queue-list"
+        [class.is-loading]="loading"
+        [attr.aria-busy]="loading ? 'true' : null"
+      >
+        @for (submission of submissions; track submission.id) {
+          <li>
+            <a
+              class="queue-row"
+              [routerLink]="['/admin/submissions', submission.id]"
+              [attr.aria-label]="'Review ' + submission.title + ', ' + submission.referenceCode"
+            >
+              <div class="reference-block">
+                <span class="reference">{{ submission.referenceCode }}</span>
+                <span class="status-badge" [ngClass]="statusClass(submission.status)">
+                  {{ statusLabel(submission.status) }}
+                </span>
+              </div>
+
+              <div class="queue-main">
+                <h2>{{ submission.title }}</h2>
+                <p>
+                  @if (submission.depictedFigure) {
+                    {{ submission.depictedFigure }}
+                  } @else {
+                    Figure not identified
+                  }
+                  @if (submission.churchName) {
+                    <span aria-hidden="true">·</span> {{ submission.churchName }}
+                  }
+                </p>
+              </div>
+
+              <div class="queue-meta">
+                <span class="meta-item">
+                  <mat-icon aria-hidden="true">photo_library</mat-icon>
+                  {{ submission.imageCount }} {{ submission.imageCount === 1 ? 'image' : 'images' }}
+                </span>
+                @if (submission.submittedAt) {
+                  <span class="meta-item">
+                    <mat-icon aria-hidden="true">schedule</mat-icon>
+                    <time [attr.datetime]="submission.submittedAt">
+                      {{ submission.submittedAt | date: 'mediumDate' }}
+                    </time>
+                  </span>
+                }
+              </div>
+
+              <mat-icon class="row-arrow" aria-hidden="true">chevron_right</mat-icon>
+            </a>
+          </li>
+        }
+      </ol>
+
+      @if (totalPages > 1) {
+        <nav class="pagination" aria-label="Moderation queue pagination">
+          <p class="pagination-summary">
+            Showing {{ pageStart }}–{{ pageEnd }} of {{ totalElements }} submissions
+          </p>
+
+          <div class="pagination-controls">
+            <button
+              mat-stroked-button
+              type="button"
+              class="pagination-nav"
+              [disabled]="!hasPrevious || loading"
+              (click)="goToPage(currentPage - 1)"
+            >
+              Previous
+            </button>
+
+            @for (page of visiblePages; track page) {
+              <button
+                mat-button
+                type="button"
+                class="page-button"
+                [class.active]="page === currentPage"
+                [attr.aria-current]="page === currentPage ? 'page' : null"
+                [attr.aria-label]="'Go to page ' + (page + 1) + ' of ' + totalPages"
+                [disabled]="loading"
+                (click)="goToPage(page)"
+              >
+                {{ page + 1 }}
+              </button>
+            }
+
+            <button
+              mat-stroked-button
+              type="button"
+              class="pagination-nav"
+              [disabled]="!hasNext || loading"
+              (click)="goToPage(currentPage + 1)"
+            >
+              Next
+            </button>
+          </div>
+        </nav>
+      }
+    }
+  </div>
+</section>

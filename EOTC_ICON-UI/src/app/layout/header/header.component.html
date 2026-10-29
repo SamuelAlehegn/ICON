@@ -34,6 +34,9 @@
 
         @if (isAuthenticated()) {
           <a class="nav-link" routerLink="/account" routerLinkActive="active">Account</a>
+          @if (isModerator()) {
+            <a class="nav-link" routerLink="/admin" routerLinkActive="active">Moderation</a>
+          }
           <button class="nav-link nav-link-button" type="button" (click)="signOut()">
             Sign out
           </button>
@@ -76,6 +79,11 @@
           <a mat-menu-item class="mobile-nav-link" routerLink="/account" routerLinkActive="active">
             My account
           </a>
+          @if (isModerator()) {
+            <a mat-menu-item class="mobile-nav-link" routerLink="/admin" routerLinkActive="active">
+              Moderation queue
+            </a>
+          }
           <button mat-menu-item class="mobile-nav-link" type="button" (click)="signOut()">
             Sign out
           </button>
