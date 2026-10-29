@@ -28,7 +28,8 @@ RUN apt-get update \
 
 WORKDIR /app
 COPY --from=build --chown=appuser:appgroup /build/app.jar /app/app.jar
-RUN mkdir -p /app/data && chown appuser:appgroup /app/data
+RUN mkdir -p /var/lib/eotcicon/media \
+    && chown -R appuser:appgroup /var/lib/eotcicon
 
 USER appuser
 EXPOSE 8080
