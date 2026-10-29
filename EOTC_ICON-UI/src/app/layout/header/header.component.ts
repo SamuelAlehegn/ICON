@@ -37,6 +37,7 @@ export class HeaderComponent {
   ];
 
   readonly isAuthenticated = this.auth.isAuthenticated;
+  readonly isAdmin = this.auth.isAdmin;
 
   signOut(): void {
     this.auth.logout().subscribe(() => void this.router.navigateByUrl('/'));

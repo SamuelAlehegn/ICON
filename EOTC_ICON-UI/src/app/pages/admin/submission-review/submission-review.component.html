@@ -1,0 +1,381 @@
+<section class="review-page" aria-labelledby="review-title">
+  <div class="review-inner">
+    <a class="back-link" routerLink="/admin">
+      <mat-icon aria-hidden="true">arrow_back</mat-icon>
+      Back to queue
+    </a>
+
+    @if (loading && !submission) {
+      <div class="loading-state" role="status" aria-live="polite">
+        <span class="visually-hidden">Loading submission…</span>
+        <mat-progress-bar mode="indeterminate" aria-label="Loading submission"></mat-progress-bar>
+      </div>
+    } @else if (error && !submission) {
+      <div class="notice notice-error" role="alert">
+        <mat-icon aria-hidden="true">error_outline</mat-icon>
+        <div>
+          <p>{{ error }}</p>
+          <button mat-stroked-button type="button" (click)="loadSubmission()">Try again</button>
+        </div>
+      </div>
+    } @else if (submission) {
+      @if (loading) {
+        <mat-progress-bar mode="indeterminate" aria-label="Updating submission"></mat-progress-bar>
+      }
+
+      <header class="review-header">
+        <div class="review-heading">
+          <p class="eyebrow">Submission {{ submission.referenceCode }}</p>
+          <h1 id="review-title">{{ submission.title }}</h1>
+          <p class="review-subtitle">
+            @if (submission.church?.name) {
+              {{ submission.church?.name }}
+            } @else {
+              Church not recorded
+            }
+          </p>
+        </div>
+        <span class="status-badge" [ngClass]="statusClass(submission.status)">
+          {{ statusLabel(submission.status) }}
+        </span>
+      </header>
+
+      @if (successMessage) {
+        <div class="notice notice-success" role="status">
+          <mat-icon aria-hidden="true">check_circle</mat-icon>
+          <p>{{ successMessage }}</p>
+          <button mat-icon-button type="button" aria-label="Dismiss message" (click)="successMessage = ''">
+            <mat-icon aria-hidden="true">close</mat-icon>
+          </button>
+        </div>
+      }
+
+      @if (error) {
+        <div class="notice notice-error" role="alert">
+          <mat-icon aria-hidden="true">error_outline</mat-icon>
+          <div>
+            <p>{{ error }}</p>
+            <button mat-stroked-button type="button" (click)="loadSubmission()">Try again</button>
+          </div>
+        </div>
+      }
+
+      <div class="review-layout">
+        <div class="review-main">
+          <section class="panel" aria-labelledby="images-title">
+            <div class="panel-heading">
+              <h2 id="images-title">Image previews</h2>
+              <span class="count">{{ submission.images?.length ?? 0 }}</span>
+            </div>
+
+            @if ((submission.images?.length ?? 0) === 0) {
+              <p class="muted">No images were attached to this submission.</p>
+            } @else {
+              <div class="image-grid">
+                @for (image of submission.images; track image.id; let index = $index) {
+                  <figure class="image-card">
+                    <a
+                      class="image-frame"
+                      [href]="image.imageUrl || image.thumbnailUrl || '#'"
+                      target="_blank"
+                      rel="noopener"
+                      [attr.aria-label]="'Open full size: ' + imageAlt(image, index)"
+                    >
+                      @if (image.thumbnailUrl || image.imageUrl) {
+                        <img
+                          [src]="image.thumbnailUrl || image.imageUrl"
+                          [alt]="imageAlt(image, index)"
+                          loading="lazy"
+                        />
+                      } @else {
+                        <span class="image-missing">Preview unavailable</span>
+                      }
+                    </a>
+                    <figcaption>
+                      <div class="image-heading">
+                        <span class="image-label">{{ imageLabel(image, index) }}</span>
+                        @if (image.primary) {
+                          <span class="pill">Primary</span>
+                        }
+                      </div>
+                      <p class="image-facts">
+                        @if (imageDimensions(image)) {
+                          {{ imageDimensions(image) }}
+                        }
+                        @if (imageDimensions(image) && imageFileSize(image)) {
+                          <span aria-hidden="true">·</span>
+                        }
+                        @if (imageFileSize(image)) {
+                          {{ imageFileSize(image) }}
+                        }
+                        @if (image.contentType) {
+                          <span aria-hidden="true">·</span> {{ image.contentType }}
+                        }
+                      </p>
+                      @if (image.rights?.attributionText) {
+                        <p class="image-rights">{{ image.rights?.attributionText }}</p>
+                      }
+                      @if (image.rights?.licenseType) {
+                        <p class="image-rights">
+                          {{ formatValue(image.rights?.licenseType) }}
+                          @if (image.rights?.verified) {
+                            <span class="pill pill-verified">Rights verified</span>
+                          }
+                        </p>
+                      }
+                    </figcaption>
+                  </figure>
+                }
+              </div>
+            }
+          </section>
+
+          <section class="panel" aria-labelledby="metadata-title">
+            <div class="panel-heading">
+              <h2 id="metadata-title">Submitted metadata</h2>
+            </div>
+
+            <dl class="metadata-grid">
+              <div class="metadata-item">
+                <dt>Reference code</dt>
+                <dd>{{ submission.referenceCode }}</dd>
+              </div>
+              <div class="metadata-item">
+                <dt>Status</dt>
+                <dd>{{ statusLabel(submission.status) }}</dd>
+              </div>
+              <div class="metadata-item">
+                <dt>Submitted</dt>
+                <dd>{{ submission.submittedAt ? (submission.submittedAt | date: 'medium') : '—' }}</dd>
+              </div>
+              <div class="metadata-item">
+                <dt>Last updated</dt>
+                <dd>{{ submission.updatedAt ? (submission.updatedAt | date: 'medium') : '—' }}</dd>
+              </div>
+              <div class="metadata-item">
+                <dt>Category</dt>
+                <dd>{{ submission.category || '—' }}</dd>
+              </div>
+              <div class="metadata-item">
+                <dt>Figure certainty</dt>
+                <dd>{{ formatValue(submission.figureCertainty) }}</dd>
+              </div>
+              <div class="metadata-item">
+                <dt>Date photographed</dt>
+                <dd>{{ submission.captureDate || '—' }}</dd>
+              </div>
+              <div class="metadata-item">
+                <dt>Artwork date</dt>
+                <dd>{{ artworkDateRange() }}</dd>
+              </div>
+              <div class="metadata-item">
+                <dt>Church</dt>
+                <dd>{{ submission.church?.name || '—' }}</dd>
+              </div>
+              <div class="metadata-item">
+                <dt>Location</dt>
+                <dd>{{ churchLocation() }}</dd>
+              </div>
+              @if (submission.publishedAt) {
+                <div class="metadata-item">
+                  <dt>Published</dt>
+                  <dd>{{ submission.publishedAt | date: 'medium' }}</dd>
+                </div>
+              }
+            </dl>
+
+            <div class="metadata-section">
+              <h3>Depicted figures</h3>
+              @if ((submission.subjects?.length ?? 0) > 0) {
+                <ul class="subject-list">
+                  @for (subject of submission.subjects; track subject.id) {
+                    <li>
+                      <span class="subject-name">{{ subjectLabel(subject) }}</span>
+                      <span class="subject-certainty">{{ formatValue(subject.figureCertainty) }}</span>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <p class="muted">No figures were recorded.</p>
+              }
+            </div>
+
+            <div class="metadata-section">
+              <h3>Description</h3>
+              <p class="prose">{{ submission.description || 'No description provided.' }}</p>
+            </div>
+
+            <div class="metadata-section">
+              <h3>Historical notes</h3>
+              <p class="prose">{{ submission.historicalNotes || 'No historical notes provided.' }}</p>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="history-title">
+            <div class="panel-heading">
+              <h2 id="history-title">Review history</h2>
+              <span class="count">{{ submission.reviews?.length ?? 0 }}</span>
+            </div>
+
+            @if ((submission.reviews?.length ?? 0) === 0) {
+              <p class="muted">No moderation events have been recorded yet.</p>
+            } @else {
+              <ol class="history-list">
+                @for (review of submission.reviews; track review.id) {
+                  <li>
+                    <div class="history-heading">
+                      <span class="history-action">{{ actionLabel(review.action) }}</span>
+                      <time [attr.datetime]="review.createdAt">{{ review.createdAt | date: 'medium' }}</time>
+                    </div>
+                    @if (review.fromStatus || review.toStatus) {
+                      <p class="history-status">
+                        {{ review.fromStatus ? statusLabel(review.fromStatus) : '—' }}
+                        <span aria-hidden="true">→</span>
+                        {{ review.toStatus ? statusLabel(review.toStatus) : '—' }}
+                      </p>
+                    }
+                    @if (review.notes) {
+                      <p class="history-notes">{{ review.notes }}</p>
+                    }
+                    @if (review.reviewerDisplayName) {
+                      <p class="history-reviewer">by {{ review.reviewerDisplayName }}</p>
+                    }
+                  </li>
+                }
+              </ol>
+            }
+          </section>
+        </div>
+
+        <aside class="review-sidebar">
+          <section class="panel contributor-panel" aria-labelledby="contributor-title">
+            <div class="panel-heading">
+              <h2 id="contributor-title">Contributor</h2>
+              <span class="pill pill-private">Private data</span>
+            </div>
+
+            <dl class="contributor-grid">
+              <div>
+                <dt>Display name</dt>
+                <dd>{{ submission.contributorDisplayName || 'Not provided' }}</dd>
+              </div>
+              <div>
+                <dt>Attribution</dt>
+                <dd>
+                  {{ submission.attributionPreference === 'ANONYMOUS' ? 'Anonymous' : 'Display name' }}
+                </dd>
+              </div>
+              <div>
+                <dt>Credit</dt>
+                <dd>{{ submission.contributorCredit || '—' }}</dd>
+              </div>
+              <div>
+                <dt>Contact email</dt>
+                <dd>
+                  @if (submission.contactEmail) {
+                    <a [href]="'mailto:' + submission.contactEmail">{{ submission.contactEmail }}</a>
+                  } @else {
+                    Not provided
+                  }
+                </dd>
+              </div>
+            </dl>
+            <p class="private-note">
+              <mat-icon aria-hidden="true">visibility_off</mat-icon>
+              This email is private and must never be shown in the public archive.
+            </p>
+          </section>
+
+          <section class="panel decision-panel" aria-labelledby="decision-title">
+            <div class="panel-heading">
+              <h2 id="decision-title">Moderation decision</h2>
+            </div>
+
+            @if (canDecide) {
+              @if (!selectedAction) {
+                <p class="muted">
+                  Choose how to resolve this submission. Rejecting or requesting a correction requires a
+                  note for the contributor.
+                </p>
+                <div class="decision-actions">
+                  @for (action of decisionActions; track action.value) {
+                    <button
+                      type="button"
+                      class="decision-button"
+                      [ngClass]="'decision-' + action.value.toLowerCase().replace('_', '-')"
+                      [disabled]="submitting"
+                      (click)="selectAction(action.value)"
+                    >
+                      <mat-icon aria-hidden="true">{{ action.icon }}</mat-icon>
+                      <span class="decision-copy">
+                        <strong>{{ action.label }}</strong>
+                        <span>{{ action.description }}</span>
+                      </span>
+                    </button>
+                  }
+                </div>
+              } @else if (selectedActionDetails) {
+                <div class="decision-form">
+                  <div class="selected-action">
+                    <mat-icon aria-hidden="true">{{ selectedActionDetails.icon }}</mat-icon>
+                    <div>
+                      <h3>{{ selectedActionDetails.label }}</h3>
+                      <p>{{ selectedActionDetails.description }}</p>
+                    </div>
+                  </div>
+
+                  <mat-form-field appearance="outline" class="notes-field">
+                    <mat-label>
+                      {{ requiresNotes ? 'Moderation notes' : 'Moderation notes (optional)' }}
+                    </mat-label>
+                    <textarea
+                      matInput
+                      rows="5"
+                      [formControl]="notes"
+                      maxlength="4000"
+                      [attr.required]="requiresNotes ? '' : null"
+                    ></textarea>
+                    <mat-hint align="end">{{ notesLength }}/4000</mat-hint>
+                    @if (notes.touched && requiresNotes && !notes.value.trim()) {
+                      <mat-error>Add a moderation note explaining this decision.</mat-error>
+                    }
+                    @if (notes.hasError('maxlength')) {
+                      <mat-error>Notes must be 4000 characters or fewer.</mat-error>
+                    }
+                  </mat-form-field>
+
+                  @if (actionError) {
+                    <p class="form-error" role="alert">{{ actionError }}</p>
+                  }
+
+                  <div class="decision-buttons">
+                    <button
+                      mat-flat-button
+                      type="button"
+                      [color]="selectedAction === 'REJECT' ? 'warn' : 'primary'"
+                      [disabled]="submitting"
+                      (click)="submitDecision()"
+                    >
+                      {{ submitting ? 'Saving…' : selectedActionDetails.label }}
+                    </button>
+                    <button mat-button type="button" [disabled]="submitting" (click)="cancelDecision()">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              }
+            } @else {
+              <div class="read-only-note">
+                <mat-icon aria-hidden="true">lock</mat-icon>
+                <p>
+                  This submission is <strong>{{ statusLabel(submission.status) }}</strong> and cannot
+                  receive another moderation decision.
+                </p>
+              </div>
+            }
+          </section>
+        </aside>
+      </div>
+    }
+  </div>
+</section>
