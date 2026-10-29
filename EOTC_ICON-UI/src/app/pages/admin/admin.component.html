@@ -1,13 +1,26 @@
 <section class="admin-page" aria-labelledby="admin-title">
   <div class="admin-inner">
     <header class="page-header">
-      <p class="eyebrow">Moderation</p>
-      <h1 id="admin-title">Submission queue</h1>
+      <p class="eyebrow">Administration</p>
+      <h1 id="admin-title">Archive management</h1>
       <p class="page-intro">
-        Review contributed icons, inspect their metadata and images, then approve, reject, or ask the
-        contributor for a correction.
+        Manage archive records and accounts, review submissions, and inspect activity and archive statistics.
       </p>
     </header>
+
+    <nav class="admin-tabs" aria-label="Admin sections">
+      <button type="button" [class.active]="section === 'queue'" (click)="selectSection('queue')">Submission queue</button>
+      <button type="button" [class.active]="section === 'churches'" (click)="selectSection('churches')">Churches</button>
+      <button type="button" [class.active]="section === 'saints'" (click)="selectSection('saints')">Saints</button>
+      <button type="button" [class.active]="section === 'users'" (click)="selectSection('users')">Users &amp; roles</button>
+      <button type="button" [class.active]="section === 'statistics'" (click)="selectSection('statistics')">Statistics</button>
+      <button type="button" [class.active]="section === 'audit'" (click)="selectSection('audit')">Audit log</button>
+    </nav>
+
+    @if (managementNotice) { <p class="management-notice" role="status">{{ managementNotice }}</p> }
+    @if (managementError) { <p class="management-error" role="alert">{{ managementError }}</p> }
+
+    @if (section === 'queue') {
 
     <form class="queue-controls" [formGroup]="filterForm" role="search" aria-label="Filter submissions">
       <mat-form-field appearance="outline" class="search-field">
@@ -168,6 +181,69 @@
           </div>
         </nav>
       }
+    }
+    } @else if (section === 'churches') {
+      <div class="management-grid">
+        <form class="management-card" (ngSubmit)="saveChurch()">
+          <h2>{{ editingChurchId ? 'Edit church' : 'Create church' }}</h2>
+          <label>Name <input name="churchName" [(ngModel)]="churchDraft.name" required /></label>
+          <label>Region <input name="region" [(ngModel)]="churchDraft.region" /></label>
+          <label>Town <input name="town" [(ngModel)]="churchDraft.town" /></label>
+          <label>Country <input name="country" [(ngModel)]="churchDraft.country" /></label>
+          <label>Description <textarea name="churchDescription" [(ngModel)]="churchDraft.description"></textarea></label>
+          <div class="management-actions"><button mat-flat-button color="primary" [disabled]="managementLoading">{{ editingChurchId ? 'Save changes' : 'Create church' }}</button><button mat-button type="button" (click)="resetChurch()">Clear</button></div>
+        </form>
+        <div class="management-card">
+          <h2>Merge duplicate churches</h2>
+          <p>Linked icons move to the selected canonical church. The duplicate remains marked as merged.</p>
+          <label>Duplicate <select name="churchSource" [(ngModel)]="churchMergeSource"><option value="">Select record</option>@for (church of churches; track church.id) { <option [value]="church.id">{{ church.name }}</option> }</select></label>
+          <label>Keep this record <select name="churchTarget" [(ngModel)]="churchMergeTarget"><option value="">Select canonical record</option>@for (church of churches; track church.id) { <option [value]="church.id">{{ church.name }}</option> }</select></label>
+          <button mat-stroked-button type="button" [disabled]="managementLoading || !churchMergeSource || !churchMergeTarget || churchMergeSource === churchMergeTarget" (click)="mergeChurch()">Merge duplicates</button>
+        </div>
+      </div>
+      <div class="management-card"><h2>Church records <span>{{ churches.length }}</span></h2>
+        @for (church of churches; track church.id) { <div class="management-row"><div><strong>{{ church.name }}</strong><small>{{ churchLocation(church) }}</small></div><button mat-button type="button" (click)="editChurch(church)">Edit</button></div> }
+      </div>
+    } @else if (section === 'saints') {
+      <div class="management-grid">
+        <form class="management-card" (ngSubmit)="saveSaint()">
+          <h2>{{ editingSaintId ? 'Edit saint' : 'Create saint' }}</h2>
+          <label>Canonical name <input name="canonicalName" [(ngModel)]="saintDraft.canonicalName" required /></label>
+          <label>Amharic name <input name="amharicName" [(ngModel)]="saintDraft.amharicName" /></label>
+          <label>Ge’ez name <input name="geezName" [(ngModel)]="saintDraft.geezName" /></label>
+          <label>Category <input name="category" [(ngModel)]="saintDraft.category" /></label>
+          <label>Description <textarea name="saintDescription" [(ngModel)]="saintDraft.description"></textarea></label>
+          <label class="checkbox-label"><input type="checkbox" name="verified" [(ngModel)]="saintDraft.verified" /> Verified record</label>
+          <div class="management-actions"><button mat-flat-button color="primary" [disabled]="managementLoading">{{ editingSaintId ? 'Save changes' : 'Create saint' }}</button><button mat-button type="button" (click)="resetSaint()">Clear</button></div>
+        </form>
+        <div class="management-card">
+          <h2>Merge duplicate saints</h2>
+          <p>Linked depictions move to the selected canonical saint. The duplicate remains marked as merged.</p>
+          <label>Duplicate <select name="saintSource" [(ngModel)]="saintMergeSource"><option value="">Select record</option>@for (saint of saints; track saint.id) { <option [value]="saint.id">{{ saint.canonicalName }}</option> }</select></label>
+          <label>Keep this record <select name="saintTarget" [(ngModel)]="saintMergeTarget"><option value="">Select canonical record</option>@for (saint of saints; track saint.id) { <option [value]="saint.id">{{ saint.canonicalName }}</option> }</select></label>
+          <button mat-stroked-button type="button" [disabled]="managementLoading || !saintMergeSource || !saintMergeTarget || saintMergeSource === saintMergeTarget" (click)="mergeSaint()">Merge duplicates</button>
+        </div>
+      </div>
+      <div class="management-card"><h2>Saint records <span>{{ saints.length }}</span></h2>
+        @for (saint of saints; track saint.id) { <div class="management-row"><div><strong>{{ saint.canonicalName }}</strong><small>{{ saint.category || 'Uncategorized' }} · {{ saint.iconCount || 0 }} depictions</small></div><button mat-button type="button" (click)="editSaint(saint)">Edit</button></div> }
+      </div>
+    } @else if (section === 'users') {
+      <div class="management-card"><h2>User accounts <span>{{ users.length }}</span></h2>
+        @for (user of users; track user.id) { <div class="management-row"><div><strong>{{ user.displayName }}</strong><small>{{ user.email }} · {{ user.status }}</small></div><label class="role-select">Role<select [ngModel]="user.role" [ngModelOptions]="{standalone: true}" (ngModelChange)="changeRole(user, $event)">@for (role of roles; track role) { <option [ngValue]="role">{{ role }}</option> }</select></label></div> }
+      </div>
+    } @else if (section === 'statistics') {
+      @if (statistics) { <div class="stats-grid">
+        <article class="stat-card"><span>Published icons</span><strong>{{ statistics.publishedIcons }}</strong></article>
+        <article class="stat-card"><span>Churches</span><strong>{{ statistics.churches }}</strong></article>
+        <article class="stat-card"><span>Saints</span><strong>{{ statistics.saints }}</strong></article>
+        <article class="stat-card"><span>Regions</span><strong>{{ statistics.regions }}</strong></article>
+        <article class="stat-card"><span>Contributors</span><strong>{{ statistics.contributors }}</strong></article>
+      </div> } @else { <p>Loading archive statistics…</p> }
+    } @else if (section === 'audit') {
+      <div class="management-card"><h2>Recent administrative activity</h2>
+        @if (auditEntries.length === 0) { <p>No audit entries are available.</p> }
+        @for (entry of auditEntries; track entry.id) { <div class="management-row audit-row"><div><strong>{{ entry.action.replaceAll('_', ' ') }}</strong><small>{{ entry.actorName }} · {{ entry.entityType }} {{ entry.entityId || '' }}<span>{{ entry.detail }}</span></small></div><time [attr.datetime]="entry.createdAt">{{ entry.createdAt | date:'medium' }}</time></div> }
+      </div>
     }
   </div>
 </section>
