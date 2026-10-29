@@ -15,14 +15,26 @@ public class RateLimitService {
 	private final Map<String, Window> windows = new ConcurrentHashMap<>();
 
 	public boolean allowRequest(String key) {
+		return allowRequest(key, MAX_REQUESTS, WINDOW_SECONDS);
+	}
+
+	public boolean allowRequest(String key, int maxRequests, long windowSeconds) {
+		if (key == null || key.isBlank() || maxRequests < 1 || windowSeconds < 1) {
+			return false;
+		}
 		Instant now = Instant.now();
+		// Opportunistically discard expired buckets so arbitrary client keys cannot
+		// grow this in-memory limiter without bound.
+		if (windows.size() > 10_000) {
+			windows.entrySet().removeIf(entry -> now.isAfter(entry.getValue().windowStart.plusSeconds(windowSeconds * 2)));
+		}
 		Window window = windows.computeIfAbsent(key, k -> new Window(now));
 		synchronized (window) {
-			if (now.isAfter(window.windowStart.plusSeconds(WINDOW_SECONDS))) {
+			if (!now.isBefore(window.windowStart.plusSeconds(windowSeconds))) {
 				window.windowStart = now;
 				window.count = 0;
 			}
-			if (window.count >= MAX_REQUESTS) {
+			if (window.count >= maxRequests) {
 				return false;
 			}
 			window.count++;

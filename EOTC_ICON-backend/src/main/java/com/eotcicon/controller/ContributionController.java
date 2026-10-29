@@ -12,9 +12,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.eotcicon.domain.Icon;
 import com.eotcicon.service.ContributionService;
+import com.eotcicon.service.RateLimitService;
 import com.eotcicon.web.dto.contribution.ContributionCreatedDto;
 import com.eotcicon.web.dto.contribution.ContributionStatusDto;
 import com.eotcicon.web.mapper.ContributionMapper;
@@ -28,9 +31,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class ContributionController {
 
 	private final ContributionService contributionService;
+	private final RateLimitService rateLimitService;
 
-	public ContributionController(ContributionService contributionService) {
+	public ContributionController(ContributionService contributionService, RateLimitService rateLimitService) {
 		this.contributionService = contributionService;
+		this.rateLimitService = rateLimitService;
 	}
 
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -53,7 +58,11 @@ public class ContributionController {
 			@RequestParam(value = "attributionPreference", required = false) String attributionPreference,
 			@RequestParam(value = "contributorDisplayName", required = false) String contributorDisplayName,
 			@RequestParam(value = "contactEmail", required = false) String contactEmail,
-			@RequestParam("consent") Boolean consent) {
+			@RequestParam("consent") Boolean consent,
+			HttpServletRequest httpRequest) {
+		if (!rateLimitService.allowRequest("contribution:ip:" + httpRequest.getRemoteAddr(), 5, 3600)) {
+			throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Too many requests. Please try again later.");
+		}
 		ContributionService.ContributionRequest request = new ContributionService.ContributionRequest(
 				images, churchName, town, region, country, latitude, longitude, saintName, category, title,
 				description, historicalNotes, capturedDate, attributionPreference, contributorDisplayName,

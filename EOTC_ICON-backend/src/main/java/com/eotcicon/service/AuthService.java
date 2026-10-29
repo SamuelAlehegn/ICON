@@ -67,6 +67,9 @@ public class AuthService {
 		if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
 			throw new org.springframework.security.authentication.BadCredentialsException("Invalid credentials");
 		}
+		if (passwordEncoder.upgradeEncoding(user.getPasswordHash())) {
+			user.setPasswordHash(passwordEncoder.encode(request.password()));
+		}
 		if (user.getStatus() != UserStatus.ACTIVE) {
 			throw new org.springframework.security.authentication.BadCredentialsException("Account is not active");
 		}

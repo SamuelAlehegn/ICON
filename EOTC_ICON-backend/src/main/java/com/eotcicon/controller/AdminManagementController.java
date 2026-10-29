@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.eotcicon.domain.*;
 import com.eotcicon.domain.enums.RecordStatus;
@@ -28,11 +29,14 @@ import com.eotcicon.web.mapper.SaintMapper;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/v1/admin")
 @Transactional
 public class AdminManagementController {
+    @Autowired(required = false)
+    private HttpServletRequest request;
     private final ChurchRepository churches;
     private final SaintRepository saints;
     private final UserRepository users;
@@ -150,6 +154,12 @@ public class AdminManagementController {
     }
     private void audit(String action, String type, UUID id, String detail) {
         AuditLog entry = new AuditLog(); entry.setActor(currentUser.requireCurrentUser()); entry.setAction(action);
-        entry.setEntityType(type); entry.setEntityId(id); entry.setDetail(detail); auditLogs.save(entry);
+        entry.setEntityType(type); entry.setEntityId(id); entry.setDetail(detail);
+        if (request != null) {
+            entry.setIpAddress(request.getRemoteAddr());
+            String userAgent = request.getHeader("User-Agent");
+            entry.setUserAgent(userAgent == null ? null : userAgent.substring(0, Math.min(userAgent.length(), 300)));
+        }
+        auditLogs.save(entry);
     }
 }
