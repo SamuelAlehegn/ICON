@@ -55,20 +55,12 @@
 }
 
 .brand-mark {
-  display: grid;
+  display: block;
   flex: 0 0 auto;
-  width: 46px;
-  height: 46px;
-  color: var(--color-gold-soft);
-  background: rgba(250, 246, 238, 0.08);
-  border: 1px solid rgba(210, 183, 124, 0.55);
-  border-radius: 50%;
-  place-items: center;
-}
-
-.brand-mark svg {
-  width: 27px;
-  height: 27px;
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 7px rgba(0, 0, 0, 0.3));
 }
 
 .brand-text {

@@ -46,23 +46,12 @@
 }
 
 .brand-mark {
-  display: grid;
+  display: block;
   flex: 0 0 auto;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  color: var(--color-gold-soft);
-  background:
-    radial-gradient(circle at 30% 22%, rgba(255, 255, 255, 0.15), transparent 42%),
-    rgba(250, 246, 238, 0.055);
-  border: 1px solid rgba(210, 183, 124, 0.72);
-  border-radius: 50%;
-  box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.035);
-}
-
-.brand-mark svg {
-  width: 28px;
-  height: 28px;
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 7px rgba(0, 0, 0, 0.28));
 }
 
 .brand-text {
