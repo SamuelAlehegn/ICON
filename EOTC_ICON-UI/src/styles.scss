@@ -1,5 +1,13 @@
 @use '@angular/material' as mat;
 
+@font-face {
+  font-family: 'Abyssinica SIL';
+  src: url('/fonts/AbyssinicaSIL-Regular.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 $burgundy-palette: (
   0: #000000,
   10: #2a070d,
@@ -223,6 +231,7 @@ $gold-palette: (
   --font-display: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
   --font-body: 'Source Sans 3', 'Helvetica Neue', Arial, sans-serif;
   --font-ethiopic: 'Noto Serif Ethiopic', 'Nyala', serif;
+  --font-traditional: 'Abyssinica SIL', 'Noto Serif Ethiopic', 'Nyala', serif;
   --shadow-soft: 0 18px 50px rgba(75, 20, 28, 0.08);
   --content-width: 1200px;
   --max-width: var(--content-width);
